@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Guides locaux certifiés au Sahel{% endblock %}
+
+{% block hero %}
+<section class="page-hero"
+         style="--hero-img: url('{% static 'img/places/pays_dogon_bandiagara.jpg' %}');">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Guides</li>
+            </ol>
+        </nav>
+        <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-patch-check-fill"></i> Profils vérifiés</span>
+        <h1 class="mb-2">Nos guides <span class="text-gold">certifiés</span></h1>
+        <p class="lead mb-0">
+            Ambassadeurs passionnés de leur terroir, nos guides possèdent une carte professionnelle officielle et une maîtrise intime des cultures locales.
+        </p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        {# Barre de recherche & filtres #}
+        <form method="get" class="bg-sand-soft p-4 rounded-ts border mb-5">
+            <div class="row g-3 align-items-end">
+                <div class="col-lg-4">
+                    <label for="guideQ" class="form-label">Nom, région ou spécialité</label>
+                    <input type="search" id="guideQ" name="q" value="{{ filtres_actuels.q }}"
+                           class="form-control" placeholder="Dogon, Tombouctou, Ornithologie…">
+                </div>
+                <div class="col-sm-4 col-lg-3">
+                    <label for="guidePays" class="form-label">Pays d'intervention</label>
+                    <select id="guidePays" name="pays" class="form-select">
+                        <option value="">Tous les pays</option>
+                        {% for pays in pays_list %}
+                            <option value="{{ pays.slug }}" {% if filtres_actuels.pays == pays.slug %}selected{% endif %}>
+                                {{ pays.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-4 col-lg-2">
+                    <label for="guideLangue" class="form-label">Langue parlée</label>
+                    <select id="guideLangue" name="langue" class="form-select">
+                        <option value="">Toutes</option>
+                        {% for lg in langues_list %}
+                            <option value="{{ lg.code }}" {% if filtres_actuels.langue == lg.code %}selected{% endif %}>
+                                {{ lg.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-4 col-lg-2">
+                    <label for="guideSpec" class="form-label">Spécialité</label>
+                    <select id="guideSpec" name="specialite" class="form-select">
+                        <option value="">Toutes</option>
+                        {% for sp in specialites_list %}
+                            <option value="{{ sp.slug }}" {% if filtres_actuels.specialite == sp.slug %}selected{% endif %}>
+                                {{ sp.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-lg-1 d-grid">
+                    <button type="submit" class="btn btn-primary" aria-label="Filtrer">
+                        <i class="bi bi-funnel-fill"></i>
+                    </button>
+                </div>
+            </div>
+            {% if filtres_actuels.q or filtres_actuels.pays or filtres_actuels.langue or filtres_actuels.specialite %}
+                <div class="mt-3 pt-3 border-top d-flex justify-content-between align-items-center small">
+                    <span class="text-muted-ts">{{ paginator.count }} guide{{ paginator.count|pluralize }} vérifié{{ paginator.count|pluralize }}</span>
+                    <a href="{% url 'guides:guide_list' %}" class="fw-semibold"><i class="bi bi-x-circle me-1"></i>Réinitialiser</a>
+                </div>
+            {% endif %}
+        </form>
+
+        {# Grille des guides #}
+        {% if guides %}
+            <div class="row g-4">
+                {% for guide in guides %}
+                    <div class="col-md-6 col-lg-4">
+                        <article class="p-4 rounded-ts bg-white border shadow-sm h-100 d-flex flex-column">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                {% if guide.photo %}
+                                    <img src="{{ guide.photo.url }}" alt="{{ guide.nom_complet }}"
+                                         class="rounded-circle object-fit-cover flex-shrink-0" style="width:72px;height:72px;">
+                                {% else %}
+                                    <span class="avatar flex-shrink-0" style="width:72px;height:72px;font-size:1.5rem;">
+                                        {{ guide.nom_complet|first|upper }}
+                                    </span>
+                                {% endif %}
+                                <div>
+                                    <h2 class="h5 mb-1">
+                                        <a href="{% url 'guides:guide_detail' guide.slug %}" class="text-green">
+                                            {{ guide.nom_complet }}
+                                        </a>
+                                        <i class="bi bi-patch-check-fill text-gold" title="Guide vérifié"></i>
+                                    </h2>
+                                    <div class="small text-muted-ts">
+                                        {{ guide.titre_professionnel|default:"Guide touristique certifié" }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="small text-muted-ts mb-3">
+                                {{ guide.bio|truncatechars:140 }}
+                            </p>
+
+                            <div class="d-flex flex-wrap gap-1 mb-3">
+                                {% for lg in guide.langues.all %}
+                                    <span class="badge-ts badge-ts--sand">{{ lg.nom }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center small">
+                                <span class="fw-semibold text-green">
+                                    <i class="bi bi-award text-earth me-1"></i>{{ guide.annees_experience }} ans d'expérience
+                                </span>
+                                <a href="{% url 'guides:guide_detail' guide.slug %}" class="btn btn-sm btn-outline-primary">
+                                    Voir le profil
+                                </a>
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-5 rounded-ts bg-sand-soft text-center border">
+                <i class="bi bi-person-badge display-5 text-earth d-block mb-3"></i>
+                <h2 class="h5">Aucun guide ne correspond à ces critères</h2>
+                <a href="{% url 'guides:guide_list' %}" class="btn btn-primary btn-sm mt-2">Voir tous les guides</a>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}
+

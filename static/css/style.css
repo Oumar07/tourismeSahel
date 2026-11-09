@@ -1,0 +1,1245 @@
+/* ==========================================================================
+   TourismeSahel — Charte graphique
+   Inspirée du patrimoine sahélien : terre crue, baobab, soleil doré, sable.
+   Ce fichier se charge APRÈS Bootstrap 5.3 et surcharge ses variables.
+   --------------------------------------------------------------------------
+   Sommaire
+   1.  Variables (palette, typographie, espacements, ombres)
+   2.  Surcharges Bootstrap
+   3.  Base & typographie
+   4.  Accessibilité
+   5.  Motif décoratif sahélien
+   6.  Logo & marque
+   7.  Header / Navbar
+   8.  Boutons
+   9.  Sections & titres
+   10. Cartes
+   11. Badges & formulaires
+   12. Hero de page
+   13. Messages (toasts)
+   14. Footer
+   15. Retour en haut
+   16. Utilitaires
+   17. Responsive & préférences utilisateur
+   ========================================================================== */
+
+
+/* ==========================================================================
+   1. Variables
+   ========================================================================== */
+:root {
+    /* --- Palette officielle --- */
+    --ts-green:        #14532D;   /* Vert profond   — couleur principale  */
+    --ts-green-light:  #65A30D;   /* Vert secondaire — accents, succès     */
+    --ts-gold:         #D6A84B;   /* Or sahélien    — appels à l'action    */
+    --ts-earth:        #A85C20;   /* Orange terre   — accents chaleureux   */
+    --ts-sand:         #F5EBD7;   /* Beige sable    — fonds de section     */
+    --ts-white:        #FFFFFF;   /* Blanc                                 */
+    --ts-dark:         #263238;   /* Gris foncé     — texte                */
+
+    /* --- Déclinaisons (hover, fonds, bordures) --- */
+    --ts-green-900:    #0D3B20;
+    --ts-green-700:    #1B6B3A;
+    --ts-green-50:     #ECF5EF;
+    --ts-gold-600:     #C0923A;
+    --ts-gold-100:     #F8EED8;
+    --ts-earth-700:    #8A4A18;
+    --ts-sand-200:     #EADBBE;
+    --ts-sand-50:      #FBF7EF;
+    --ts-muted:        #5F6B70;
+    --ts-border:       #E7DFCF;
+
+    /* --- Valeurs RGB (pour rgba()) --- */
+    --ts-green-rgb:    20, 83, 45;
+    --ts-gold-rgb:     214, 168, 75;
+    --ts-earth-rgb:    168, 92, 32;
+    --ts-dark-rgb:     38, 50, 56;
+
+    /* --- Typographie --- */
+    --ts-font-heading: "Poppins", "Montserrat", system-ui, sans-serif;
+    --ts-font-body:    "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+    /* --- Formes & rythme --- */
+    --ts-radius-sm:    .5rem;
+    --ts-radius:       .875rem;
+    --ts-radius-lg:    1.25rem;
+    --ts-radius-pill:  50rem;
+    --ts-section-y:    clamp(4rem, 8vw, 7rem);
+    --ts-header-h:     76px;
+
+    /* --- Ombres (teintées vert pour plus de chaleur) --- */
+    --ts-shadow-sm:    0 2px 8px rgba(var(--ts-green-rgb), .06);
+    --ts-shadow:       0 10px 30px rgba(var(--ts-green-rgb), .10);
+    --ts-shadow-lg:    0 24px 60px rgba(var(--ts-green-rgb), .16);
+
+    /* --- Transitions --- */
+    --ts-ease:         cubic-bezier(.22, .61, .36, 1);
+    --ts-transition:   .3s var(--ts-ease);
+}
+
+
+/* ==========================================================================
+   2. Surcharges Bootstrap
+   ========================================================================== */
+:root {
+    --bs-primary:            var(--ts-green);
+    --bs-primary-rgb:        var(--ts-green-rgb);
+    --bs-secondary:          var(--ts-earth);
+    --bs-secondary-rgb:      var(--ts-earth-rgb);
+    --bs-success:            var(--ts-green-light);
+    --bs-success-rgb:        101, 163, 13;
+    --bs-warning:            var(--ts-gold);
+    --bs-warning-rgb:        var(--ts-gold-rgb);
+    --bs-dark:               var(--ts-dark);
+    --bs-dark-rgb:           var(--ts-dark-rgb);
+    --bs-light:              var(--ts-sand);
+    --bs-light-rgb:          245, 235, 215;
+
+    --bs-body-font-family:   var(--ts-font-body);
+    --bs-body-color:         var(--ts-dark);
+    --bs-body-color-rgb:     var(--ts-dark-rgb);
+    --bs-body-bg:            var(--ts-white);
+    --bs-secondary-color:    var(--ts-muted);
+    --bs-border-color:       var(--ts-border);
+    --bs-border-radius:      var(--ts-radius-sm);
+    --bs-border-radius-lg:   var(--ts-radius);
+
+    --bs-link-color:         var(--ts-green);
+    --bs-link-color-rgb:     var(--ts-green-rgb);
+    --bs-link-hover-color:   var(--ts-earth);
+    --bs-link-hover-color-rgb: var(--ts-earth-rgb);
+
+    --bs-focus-ring-color:   rgba(var(--ts-gold-rgb), .45);
+}
+
+
+/* ==========================================================================
+   3. Base & typographie
+   ========================================================================== */
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: calc(var(--ts-header-h) + 1rem);
+}
+
+body {
+    font-family: var(--ts-font-body);
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--ts-dark);
+    background-color: var(--ts-white);
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.site-main {
+    flex: 1 0 auto;
+    outline: none;
+}
+
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.display-1, .display-2, .display-3, .display-4, .display-5, .display-6 {
+    font-family: var(--ts-font-heading);
+    font-weight: 700;
+    color: var(--ts-green-900);
+    line-height: 1.2;
+    letter-spacing: -.02em;
+}
+
+.lead {
+    font-weight: 400;
+    color: var(--ts-muted);
+}
+
+a {
+    text-decoration: none;
+    transition: color var(--ts-transition);
+}
+
+::selection {
+    background: var(--ts-gold);
+    color: var(--ts-green-900);
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+
+/* ==========================================================================
+   4. Accessibilité
+   ========================================================================== */
+.skip-link {
+    position: absolute;
+    top: -100px;
+    left: 1rem;
+    z-index: 2000;
+    padding: .75rem 1.25rem;
+    background: var(--ts-green);
+    color: var(--ts-white);
+    border-radius: var(--ts-radius-sm);
+    font-weight: 600;
+}
+
+.skip-link:focus {
+    top: 1rem;
+    color: var(--ts-white);
+}
+
+:focus-visible {
+    outline: 3px solid var(--ts-gold);
+    outline-offset: 2px;
+}
+
+
+/* ==========================================================================
+   5. Motif décoratif sahélien
+   Frise de triangles (évoque les motifs bogolan et les créneaux
+   des architectures de terre), générée en CSS pur.
+   ========================================================================== */
+.sahel-band {
+    height: 6px;
+    background:
+        linear-gradient(135deg, var(--ts-earth) 25%, transparent 25%) -6px 0 / 12px 12px,
+        linear-gradient(225deg, var(--ts-earth) 25%, transparent 25%) -6px 0 / 12px 12px,
+        var(--ts-gold);
+}
+
+.sahel-divider {
+    display: block;
+    width: 72px;
+    height: 10px;
+    background:
+        linear-gradient(135deg, var(--ts-gold) 33%, transparent 33%) 0 0 / 12px 10px,
+        linear-gradient(225deg, var(--ts-gold) 33%, transparent 33%) 0 0 / 12px 10px;
+}
+
+
+/* ==========================================================================
+   6. Logo & marque
+   ========================================================================== */
+.brand {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+    color: var(--ts-green-900);
+}
+
+.brand:hover {
+    color: var(--ts-green-900);
+}
+
+.brand-logo {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    transition: transform var(--ts-transition);
+}
+
+.brand:hover .brand-logo {
+    transform: rotate(-4deg) scale(1.05);
+}
+
+.brand-name {
+    font-family: var(--ts-font-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1;
+}
+
+.brand-name span {
+    color: var(--ts-gold-600);
+}
+
+/* Variante claire (fond vert du footer) : on redéfinit les couleurs
+   du symbole SVG via les variables héritées dans <use>. */
+.brand-logo--light {
+    --logo-tree:   var(--ts-sand);
+    --logo-ground: var(--ts-gold);
+    --logo-door:   var(--ts-green);
+}
+
+.brand--light,
+.brand--light:hover {
+    color: var(--ts-white);
+}
+
+.brand--light .brand-name span {
+    color: var(--ts-gold);
+}
+
+
+/* ==========================================================================
+   7. Header / Navbar
+   ========================================================================== */
+.site-header {
+    background: rgba(255, 255, 255, .92);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
+    border-bottom: 1px solid transparent;
+    transition: box-shadow var(--ts-transition), border-color var(--ts-transition), background var(--ts-transition);
+}
+
+.site-header.is-scrolled {
+    background: rgba(255, 255, 255, .97);
+    border-bottom-color: var(--ts-border);
+    box-shadow: var(--ts-shadow-sm);
+}
+
+.site-header .navbar {
+    min-height: var(--ts-header-h);
+    padding-block: .75rem;
+    transition: padding var(--ts-transition);
+}
+
+.site-header.is-scrolled .navbar {
+    padding-block: .4rem;
+}
+
+.navbar-toggler {
+    border: 0;
+    padding: .35rem .5rem;
+    font-size: 1.75rem;
+    color: var(--ts-green);
+}
+
+.navbar-toggler:focus {
+    box-shadow: 0 0 0 3px rgba(var(--ts-gold-rgb), .4);
+}
+
+/* Liens */
+.site-header .nav-link {
+    position: relative;
+    padding: .5rem .75rem !important;
+    font-family: var(--ts-font-heading);
+    font-size: .92rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--ts-dark);
+    transition: color var(--ts-transition);
+}
+
+.site-header .nav-link::after {
+    content: "";
+    position: absolute;
+    left: .75rem;
+    right: .75rem;
+    bottom: .2rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--ts-gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--ts-transition);
+}
+
+.site-header .nav-link:hover,
+.site-header .nav-link:focus {
+    color: var(--ts-green);
+}
+
+.site-header .nav-link:hover::after,
+.site-header .nav-link.active::after {
+    transform: scaleX(1);
+}
+
+.site-header .nav-link.active {
+    color: var(--ts-green);
+    font-weight: 600;
+}
+
+/* Actions (recherche, compte) */
+.nav-actions {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    gap: .45rem;
+}
+
+.nav-actions .btn {
+    white-space: nowrap;
+}
+
+.btn-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border-radius: 50%;
+    color: var(--ts-green);
+    font-size: 1.1rem;
+    border: 1px solid transparent;
+}
+
+.btn-icon:hover,
+.btn-icon:focus-visible,
+.btn-icon[aria-expanded="true"] {
+    background: var(--ts-sand);
+    color: var(--ts-green);
+}
+
+.nav-login {
+    font-family: var(--ts-font-heading);
+    font-weight: 500;
+    color: var(--ts-green);
+    text-decoration: none;
+}
+
+.nav-login:hover {
+    color: var(--ts-earth);
+}
+
+.btn-user {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .25rem .75rem .25rem .25rem;
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius-pill);
+    font-weight: 500;
+    color: var(--ts-dark);
+}
+
+.btn-user:hover,
+.btn-user.show {
+    border-color: var(--ts-gold);
+    background: var(--ts-sand-50);
+}
+
+.avatar {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--ts-green);
+    color: var(--ts-gold);
+    font-family: var(--ts-font-heading);
+    font-weight: 700;
+    font-size: .9rem;
+}
+
+/* Menu déroulant */
+.dropdown-menu {
+    --bs-dropdown-link-active-bg: var(--ts-green);
+    padding: .5rem;
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius);
+    box-shadow: var(--ts-shadow);
+    min-width: 220px;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .55rem .75rem;
+    border-radius: var(--ts-radius-sm);
+    font-size: .93rem;
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+    background: var(--ts-sand);
+    color: var(--ts-green-900);
+}
+
+.dropdown-item i {
+    color: var(--ts-earth);
+}
+
+/* Barre de recherche dépliable */
+.nav-search {
+    border-top: 1px solid var(--ts-border);
+    background: var(--ts-sand-50);
+}
+
+.search-form {
+    position: relative;
+    display: flex;
+    gap: .5rem;
+    max-width: 720px;
+    margin-inline: auto;
+}
+
+.search-form > i {
+    position: absolute;
+    left: 1.1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ts-muted);
+}
+
+.search-form .form-control {
+    padding-left: 2.75rem;
+    border-radius: var(--ts-radius-pill);
+}
+
+.search-form .btn {
+    border-radius: var(--ts-radius-pill);
+    white-space: nowrap;
+}
+
+/* Offcanvas mobile */
+.offcanvas {
+    --bs-offcanvas-width: 320px;
+    background: var(--ts-white);
+}
+
+.offcanvas-header {
+    border-bottom: 1px solid var(--ts-border);
+}
+
+@media (max-width: 1199.98px) {
+    .offcanvas-body {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .site-header .nav-link {
+        padding: .8rem 1rem !important;
+        border-radius: var(--ts-radius-sm);
+        font-size: 1rem;
+    }
+
+    .site-header .nav-link::after {
+        display: none;
+    }
+
+    .site-header .nav-link.active,
+    .site-header .nav-link:hover {
+        background: var(--ts-sand);
+    }
+
+    .nav-actions {
+        flex-wrap: wrap;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--ts-border);
+    }
+
+    .nav-actions .btn-gold {
+        flex: 1;
+    }
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+    .site-header .nav-link {
+        padding: .5rem .52rem !important;
+        font-size: .875rem;
+    }
+
+    .site-header .nav-link::after {
+        left: .52rem;
+        right: .52rem;
+    }
+
+    .nav-actions .btn-gold {
+        --bs-btn-padding-x: 1rem;
+        --bs-btn-padding-y: .5rem;
+        --bs-btn-font-size: .875rem;
+    }
+
+    .nav-login {
+        --bs-btn-padding-x: .45rem;
+        font-size: .875rem;
+    }
+}
+
+@media (min-width: 1200px) {
+    .navbar-expand-xl .offcanvas .offcanvas-body {
+        flex-grow: 1;
+    }
+}
+
+
+/* ==========================================================================
+   8. Boutons
+   ========================================================================== */
+.btn {
+    --bs-btn-padding-x: 1.4rem;
+    --bs-btn-padding-y: .65rem;
+    --bs-btn-font-family: var(--ts-font-heading);
+    --bs-btn-font-weight: 600;
+    --bs-btn-font-size: .95rem;
+    --bs-btn-border-radius: var(--ts-radius-pill);
+    --bs-btn-focus-box-shadow: 0 0 0 .25rem rgba(var(--ts-gold-rgb), .4);
+    letter-spacing: .01em;
+    transition: all var(--ts-transition);
+}
+
+.btn-lg {
+    --bs-btn-padding-x: 2rem;
+    --bs-btn-padding-y: .9rem;
+    --bs-btn-font-size: 1.05rem;
+}
+
+.btn-sm {
+    --bs-btn-padding-x: 1rem;
+    --bs-btn-padding-y: .4rem;
+    --bs-btn-font-size: .85rem;
+}
+
+.btn-icon,
+.btn-user,
+.btn-link {
+    --bs-btn-padding-x: 0;
+    --bs-btn-padding-y: 0;
+}
+
+.btn-link {
+    --bs-btn-padding-x: .75rem;
+    --bs-btn-padding-y: .5rem;
+}
+
+.btn-primary {
+    --bs-btn-color: var(--ts-white);
+    --bs-btn-bg: var(--ts-green);
+    --bs-btn-border-color: var(--ts-green);
+    --bs-btn-hover-color: var(--ts-white);
+    --bs-btn-hover-bg: var(--ts-green-700);
+    --bs-btn-hover-border-color: var(--ts-green-700);
+    --bs-btn-active-bg: var(--ts-green-900);
+    --bs-btn-active-border-color: var(--ts-green-900);
+    --bs-btn-disabled-bg: var(--ts-green);
+    --bs-btn-disabled-border-color: var(--ts-green);
+}
+
+.btn-gold {
+    --bs-btn-color: var(--ts-green-900);
+    --bs-btn-bg: var(--ts-gold);
+    --bs-btn-border-color: var(--ts-gold);
+    --bs-btn-hover-color: var(--ts-green-900);
+    --bs-btn-hover-bg: var(--ts-gold-600);
+    --bs-btn-hover-border-color: var(--ts-gold-600);
+    --bs-btn-active-color: var(--ts-green-900);
+    --bs-btn-active-bg: var(--ts-gold-600);
+    --bs-btn-active-border-color: var(--ts-gold-600);
+}
+
+.btn-earth {
+    --bs-btn-color: var(--ts-white);
+    --bs-btn-bg: var(--ts-earth);
+    --bs-btn-border-color: var(--ts-earth);
+    --bs-btn-hover-color: var(--ts-white);
+    --bs-btn-hover-bg: var(--ts-earth-700);
+    --bs-btn-hover-border-color: var(--ts-earth-700);
+    --bs-btn-active-color: var(--ts-white);
+    --bs-btn-active-bg: var(--ts-earth-700);
+    --bs-btn-active-border-color: var(--ts-earth-700);
+}
+
+.btn-outline-primary {
+    --bs-btn-color: var(--ts-green);
+    --bs-btn-border-color: var(--ts-green);
+    --bs-btn-hover-color: var(--ts-white);
+    --bs-btn-hover-bg: var(--ts-green);
+    --bs-btn-hover-border-color: var(--ts-green);
+    --bs-btn-active-bg: var(--ts-green-900);
+    --bs-btn-active-border-color: var(--ts-green-900);
+}
+
+.btn-outline-light {
+    --bs-btn-hover-color: var(--ts-green-900);
+}
+
+.btn-primary:hover,
+.btn-gold:hover,
+.btn-earth:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--ts-shadow);
+}
+
+
+/* ==========================================================================
+   9. Sections & titres
+   ========================================================================== */
+.section {
+    padding-block: var(--ts-section-y);
+}
+
+.section-sm {
+    padding-block: calc(var(--ts-section-y) / 2);
+}
+
+.bg-sand {
+    background-color: var(--ts-sand) !important;
+}
+
+.bg-sand-soft {
+    background-color: var(--ts-sand-50) !important;
+}
+
+.bg-green {
+    background-color: var(--ts-green) !important;
+    color: var(--ts-white);
+}
+
+.bg-green h1, .bg-green h2, .bg-green h3,
+.bg-green h4, .bg-green h5, .bg-green h6 {
+    color: var(--ts-white);
+}
+
+.section-header {
+    max-width: 680px;
+    margin-bottom: 3rem;
+}
+
+.section-header.text-center {
+    margin-inline: auto;
+}
+
+.section-header.text-center .sahel-divider {
+    margin-inline: auto;
+}
+
+.eyebrow {
+    display: inline-block;
+    margin-bottom: .75rem;
+    font-family: var(--ts-font-heading);
+    font-size: .8rem;
+    font-weight: 600;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--ts-earth);
+}
+
+.section-title {
+    font-size: clamp(1.9rem, 3.5vw, 2.75rem);
+    margin-bottom: 1rem;
+}
+
+.section-title em {
+    font-style: normal;
+    color: var(--ts-gold-600);
+}
+
+.section-subtitle {
+    font-size: 1.075rem;
+    color: var(--ts-muted);
+    margin-top: 1rem;
+    margin-bottom: 0;
+}
+
+
+/* ==========================================================================
+   10. Cartes
+   ========================================================================== */
+.card-ts {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+    background: var(--ts-white);
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius-lg);
+    box-shadow: var(--ts-shadow-sm);
+    transition: transform var(--ts-transition), box-shadow var(--ts-transition);
+}
+
+.card-ts:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--ts-shadow-lg);
+}
+
+.card-ts__media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--ts-sand);
+}
+
+.card-ts__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform .7s var(--ts-ease);
+}
+
+.card-ts:hover .card-ts__media img {
+    transform: scale(1.07);
+}
+
+.card-ts__badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 1;
+}
+
+.card-ts__fav {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .92);
+    color: var(--ts-earth);
+    box-shadow: var(--ts-shadow-sm);
+    transition: transform var(--ts-transition), color var(--ts-transition);
+}
+
+.card-ts__fav:hover,
+.card-ts__fav.is-active {
+    transform: scale(1.1);
+    color: #C0392B;
+}
+
+.card-ts__body {
+    padding: 1.4rem 1.5rem 1.5rem;
+}
+
+.card-ts__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem 1rem;
+    font-size: .85rem;
+    color: var(--ts-muted);
+}
+
+.card-ts__meta i {
+    color: var(--ts-earth);
+}
+
+.card-ts__title {
+    margin: .5rem 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.card-ts__title a {
+    color: var(--ts-green-900);
+}
+
+/* Lien étiré : toute la carte est cliquable */
+.card-ts__title a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.card-ts__price {
+    font-family: var(--ts-font-heading);
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--ts-green);
+}
+
+.card-ts__price small {
+    font-family: var(--ts-font-body);
+    font-weight: 400;
+    font-size: .8rem;
+    color: var(--ts-muted);
+}
+
+.rating {
+    color: var(--ts-gold);
+    font-size: .9rem;
+}
+
+
+/* ==========================================================================
+   11. Badges & formulaires
+   ========================================================================== */
+.badge-ts {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .4rem .8rem;
+    border-radius: var(--ts-radius-pill);
+    font-family: var(--ts-font-heading);
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    background: var(--ts-white);
+    color: var(--ts-green-900);
+}
+
+.badge-ts--gold  { background: var(--ts-gold);   color: var(--ts-green-900); }
+.badge-ts--earth { background: var(--ts-earth);  color: var(--ts-white); }
+.badge-ts--green { background: var(--ts-green);  color: var(--ts-white); }
+.badge-ts--sand  { background: var(--ts-sand);   color: var(--ts-earth-700); }
+
+.form-control,
+.form-select {
+    padding: .7rem 1rem;
+    border-color: var(--ts-border);
+    border-radius: var(--ts-radius-sm);
+    transition: border-color var(--ts-transition), box-shadow var(--ts-transition);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--ts-gold);
+    box-shadow: 0 0 0 .25rem rgba(var(--ts-gold-rgb), .25);
+}
+
+.form-label {
+    font-weight: 500;
+    font-size: .92rem;
+    color: var(--ts-green-900);
+}
+
+.form-check-input:checked {
+    background-color: var(--ts-green);
+    border-color: var(--ts-green);
+}
+
+.form-check-input:focus {
+    border-color: var(--ts-gold);
+    box-shadow: 0 0 0 .25rem rgba(var(--ts-gold-rgb), .25);
+}
+
+
+/* ==========================================================================
+   12. Hero de page
+   Usage : <section class="page-hero" style="--hero-img:url('...')">
+   ========================================================================== */
+.page-hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: 360px;
+    padding-block: 5rem 3.5rem;
+    color: var(--ts-white);
+    background:
+        linear-gradient(105deg, rgba(13, 59, 32, .82) 0%, rgba(20, 83, 45, .54) 52%, rgba(42, 28, 14, .28) 100%),
+        linear-gradient(180deg, rgba(13, 59, 32, .16) 0%, rgba(13, 59, 32, .70) 100%),
+        var(--hero-img, none) center / cover no-repeat,
+        var(--ts-green);
+    isolation: isolate;
+}
+
+.page-hero--lg {
+    min-height: min(88vh, 760px);
+    align-items: center;
+}
+
+.page-hero h1,
+.page-hero .h1 {
+    color: var(--ts-white);
+    font-size: clamp(2.2rem, 5vw, 3.75rem);
+    font-weight: 800;
+}
+
+.page-hero .lead {
+    color: rgba(255, 255, 255, .85);
+    max-width: 640px;
+}
+
+.page-hero .breadcrumb {
+    --bs-breadcrumb-divider-color: rgba(255, 255, 255, .6);
+    --bs-breadcrumb-item-active-color: var(--ts-gold);
+    margin-bottom: 1rem;
+    font-size: .9rem;
+}
+
+.page-hero .breadcrumb a {
+    color: rgba(255, 255, 255, .85);
+}
+
+.page-hero .breadcrumb a:hover {
+    color: var(--ts-gold);
+}
+
+
+/* ==========================================================================
+   13. Messages (toasts)
+   ========================================================================== */
+.toast-container {
+    z-index: 1090;
+}
+
+.ts-toast {
+    border: 0;
+    border-left: 4px solid var(--ts-green);
+    border-radius: var(--ts-radius-sm);
+    box-shadow: var(--ts-shadow);
+    background: var(--ts-white);
+}
+
+.ts-toast .toast-body {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    font-weight: 500;
+}
+
+.ts-toast--success { border-left-color: var(--ts-green-light); }
+.ts-toast--success i { color: var(--ts-green-light); }
+.ts-toast--info    { border-left-color: var(--ts-green); }
+.ts-toast--info i  { color: var(--ts-green); }
+.ts-toast--warning { border-left-color: var(--ts-gold); }
+.ts-toast--warning i { color: var(--ts-gold-600); }
+.ts-toast--error   { border-left-color: #C0392B; }
+.ts-toast--error i { color: #C0392B; }
+
+
+/* ==========================================================================
+   14. Footer
+   ========================================================================== */
+.site-footer {
+    position: relative;
+    margin-top: auto;
+    background-color: var(--ts-green-900);
+    background-image:
+        radial-gradient(circle at 85% 0%, rgba(var(--ts-gold-rgb), .12) 0, transparent 45%),
+        radial-gradient(circle at 0% 100%, rgba(101, 163, 13, .10) 0, transparent 40%);
+    color: rgba(255, 255, 255, .72);
+    font-size: .94rem;
+}
+
+.footer-main {
+    padding-block: 4.5rem 2.5rem;
+}
+
+.footer-title {
+    margin-bottom: 1.25rem;
+    font-size: .95rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ts-gold);
+}
+
+.footer-text {
+    color: rgba(255, 255, 255, .72);
+    max-width: 360px;
+}
+
+.footer-links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: .65rem;
+}
+
+.footer-links a {
+    position: relative;
+    color: rgba(255, 255, 255, .78);
+    transition: color var(--ts-transition), padding var(--ts-transition);
+}
+
+.footer-links a:hover {
+    color: var(--ts-gold);
+    padding-left: .35rem;
+}
+
+.footer-social {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0;
+    display: flex;
+    gap: .6rem;
+}
+
+.footer-social a {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, .18);
+    color: var(--ts-white);
+    transition: all var(--ts-transition);
+}
+
+.footer-social a:hover {
+    background: var(--ts-gold);
+    border-color: var(--ts-gold);
+    color: var(--ts-green-900);
+    transform: translateY(-3px);
+}
+
+.footer-newsletter .form-control {
+    background: rgba(255, 255, 255, .08);
+    border-color: rgba(255, 255, 255, .18);
+    color: var(--ts-white);
+}
+
+.footer-newsletter .form-control::placeholder {
+    color: rgba(255, 255, 255, .55);
+}
+
+.footer-newsletter .form-control:focus {
+    background: rgba(255, 255, 255, .12);
+    border-color: var(--ts-gold);
+    color: var(--ts-white);
+}
+
+.footer-contact {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem 2.5rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, .1);
+}
+
+.footer-contact i {
+    color: var(--ts-gold);
+    margin-right: .4rem;
+}
+
+.footer-contact a {
+    color: rgba(255, 255, 255, .78);
+}
+
+.footer-contact a:hover {
+    color: var(--ts-gold);
+}
+
+.footer-bottom {
+    padding-block: 1.25rem;
+    background: rgba(0, 0, 0, .18);
+    font-size: .85rem;
+    color: rgba(255, 255, 255, .6);
+}
+
+.footer-legal {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.footer-legal a {
+    color: rgba(255, 255, 255, .6);
+}
+
+.footer-legal a:hover {
+    color: var(--ts-gold);
+}
+
+
+/* ==========================================================================
+   15. Retour en haut
+   ========================================================================== */
+.back-to-top {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 1030;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ts-gold);
+    color: var(--ts-green-900);
+    font-size: 1.2rem;
+    box-shadow: var(--ts-shadow);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(12px);
+    transition: all var(--ts-transition);
+}
+
+.back-to-top.is-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.back-to-top:hover {
+    background: var(--ts-gold-600);
+}
+
+
+/* ==========================================================================
+   16. Utilitaires
+   ========================================================================== */
+.text-green       { color: var(--ts-green) !important; }
+.text-green-light { color: var(--ts-green-light) !important; }
+.text-gold        { color: var(--ts-gold) !important; }
+.text-earth       { color: var(--ts-earth) !important; }
+.text-sand        { color: var(--ts-sand) !important; }
+.text-dark-ts     { color: var(--ts-dark) !important; }
+.text-muted-ts    { color: var(--ts-muted) !important; }
+
+.bg-gold          { background-color: var(--ts-gold) !important; }
+.bg-earth         { background-color: var(--ts-earth) !important; }
+
+.font-heading     { font-family: var(--ts-font-heading) !important; }
+.rounded-ts       { border-radius: var(--ts-radius-lg) !important; }
+.shadow-ts        { box-shadow: var(--ts-shadow) !important; }
+
+.img-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
+/* ==========================================================================
+   17. Responsive & préférences utilisateur
+   ========================================================================== */
+@media (max-width: 575.98px) {
+    :root {
+        --ts-header-h: 64px;
+    }
+
+    .brand-logo {
+        width: 38px;
+        height: 38px;
+    }
+
+    .brand-name {
+        font-size: 1.2rem;
+    }
+
+    .search-form {
+        flex-direction: column;
+    }
+
+    .search-form > i {
+        top: 1.45rem;
+    }
+
+    .back-to-top {
+        right: 1rem;
+        bottom: 1rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}
+
+@media print {
+    .site-header,
+    .site-footer,
+    .back-to-top,
+    .sahel-band {
+        display: none !important;
+    }
+}
+

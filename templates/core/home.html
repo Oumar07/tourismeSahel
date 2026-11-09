@@ -1,0 +1,479 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Voyagez au cœur du Sahel — Destinations, Sites, Circuits & Guides{% endblock %}
+
+{% block hero %}
+<section class="page-hero page-hero--lg"
+         style="--hero-img: url('{% static 'img/places/hero_sahel.jpg' %}');">
+    <div class="container py-4">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-7">
+                <span class="badge-ts badge-ts--gold mb-3">
+                    <i class="bi bi-sun-fill"></i> Patrimoine, déserts & cultures vivantes
+                </span>
+                <h1 class="mb-3">
+                    Explorez l'âme authentique du <span class="text-gold">Sahel</span>
+                </h1>
+                <p class="lead mb-4">
+                    Des cités de terre classées à l'UNESCO aux dunes dorées du Sahara, en passant par les rives du fleuve
+                    Niger et du Sénégal : vivez un voyage sur mesure accompagné par nos guides locaux certifiés.
+                </p>
+
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a href="{% url 'locations:destination_list' %}" class="btn btn-gold btn-lg">
+                        <i class="bi bi-compass me-1"></i> Explorer les destinations
+                    </a>
+                    <a href="{% url 'tourism:site_list' %}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-bank me-1"></i> Sites patrimoniaux
+                    </a>
+                </div>
+
+                {# Chiffres clés dynamiques #}
+                <div class="row g-3 pt-2 hero-stats">
+                    <div class="col-6 col-sm-3">
+                        <div class="p-3 rounded-3" style="background: rgba(255,255,255,.1); backdrop-filter: blur(6px);">
+                            <div class="h3 fw-bold text-gold mb-0">{{ stats.nb_pays|default:"6" }}</div>
+                            <small class="text-white-50">Pays sahéliens</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-3 rounded-3" style="background: rgba(255,255,255,.1); backdrop-filter: blur(6px);">
+                            <div class="h3 fw-bold text-gold mb-0">{{ stats.nb_destinations|default:"20+" }}</div>
+                            <small class="text-white-50">Destinations</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-3 rounded-3" style="background: rgba(255,255,255,.1); backdrop-filter: blur(6px);">
+                            <div class="h3 fw-bold text-gold mb-0">{{ stats.nb_sites|default:"50+" }}</div>
+                            <small class="text-white-50">Sites classés</small>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <div class="p-3 rounded-3" style="background: rgba(255,255,255,.1); backdrop-filter: blur(6px);">
+                            <div class="h3 fw-bold text-gold mb-0">{{ stats.nb_guides|default:"100%" }}</div>
+                            <small class="text-white-50">Guides vérifiés</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Carte de recherche immersive #}
+            <div class="col-lg-5">
+                <div class="bg-white text-dark-ts p-4 p-md-5 rounded-ts shadow-ts">
+                    <span class="eyebrow mb-1">Trouvez votre prochaine étape</span>
+                    <h2 class="h4 mb-3">Rechercher une expérience</h2>
+
+                    <form action="{% url 'tourism:site_list' %}" method="get" class="vstack gap-3">
+                        <div>
+                            <label for="heroSearchQ" class="form-label">Mot-clé, ville ou monument</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-sand-soft border-end-0"><i class="bi bi-search text-earth"></i></span>
+                                <input type="search" id="heroSearchQ" name="q" class="form-control border-start-0"
+                                       placeholder="Djenné, Saint-Louis, Agadez, Girafes…">
+                            </div>
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-sm-6">
+                                <label for="heroSearchPays" class="form-label">Pays</label>
+                                <select id="heroSearchPays" name="pays" class="form-select">
+                                    <option value="">Tous les pays</option>
+                                    {% for pays in pays_list %}
+                                        <option value="{{ pays.slug }}">{{ pays.nom }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-sm-6">
+                                <label for="heroSearchCat" class="form-label">Catégorie</label>
+                                <select id="heroSearchCat" name="categorie" class="form-select">
+                                    <option value="">Toutes les catégories</option>
+                                    {% for cat in categories_list %}
+                                        <option value="{{ cat.slug }}">{{ cat.nom }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="heroUnesco" name="unesco" value="1">
+                            <label class="form-check-label small" for="heroUnesco">
+                                Uniquement les sites classés au Patrimoine mondial de l'UNESCO
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-1">
+                            <i class="bi bi-search me-1"></i> Lancer la recherche
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+
+{# ===== 1. DESTINATIONS POPULAIRES ===== #}
+<section class="section">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-3">
+            <div>
+                <span class="eyebrow">Terres de caractère</span>
+                <h2 class="section-title mb-2">Destinations <em>populaires</em></h2>
+                <span class="sahel-divider"></span>
+            </div>
+            <a href="{% url 'locations:destination_list' %}" class="btn btn-outline-primary align-self-start align-self-md-end">
+                Toutes les destinations <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        {% if destinations_populaires %}
+            <div class="row g-4">
+                {% for destination in destinations_populaires %}
+                    <div class="col-md-6 col-lg-4">
+                        <article class="card-ts">
+                            <div class="card-ts__media">
+                                {% if destination.image_principale %}
+                                    <img src="{{ destination.image_principale.url }}" alt="{{ destination.nom }}" loading="lazy">
+                                {% else %}
+                                    <div class="w-100 h-100 d-grid place-items-center bg-sand text-earth">
+                                        <i class="bi bi-geo-alt display-4"></i>
+                                    </div>
+                                {% endif %}
+                                <div class="card-ts__badge d-flex gap-2">
+                                    <span class="badge-ts badge-ts--green">
+                                        <i class="bi bi-geo-alt-fill"></i> {{ destination.region.pays.nom }}
+                                    </span>
+                                    {% if destination.en_vedette %}
+                                        <span class="badge-ts badge-ts--gold">
+                                            <i class="bi bi-star-fill"></i> Incontournable
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="card-ts__body">
+                                <div class="card-ts__meta">
+                                    <span><i class="bi bi-map"></i> {{ destination.region.nom }}</span>
+                                    <span><i class="bi bi-bank"></i> {{ destination.nb_sites }} site{{ destination.nb_sites|pluralize }}</span>
+                                    {% if destination.meilleure_periode %}
+                                        <span><i class="bi bi-calendar3"></i> {{ destination.meilleure_periode }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <h3 class="card-ts__title">
+                                    <a href="{% url 'locations:destination_detail' destination.slug %}">
+                                        {{ destination.nom }}
+                                    </a>
+                                </h3>
+
+                                <p class="text-muted-ts small mb-0">
+                                    {{ destination.description_courte|truncatechars:120 }}
+                                </p>
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-5 rounded-ts bg-sand-soft text-center border">
+                <i class="bi bi-compass display-5 text-earth d-block mb-3"></i>
+                <h3 class="h5">Aucune destination publiée pour le moment</h3>
+                <p class="text-muted-ts mb-0">
+                    Ajoutez vos premières destinations depuis l'espace d'administration pour les voir apparaître ici.
+                </p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{# ===== 2. SITES TOURISTIQUES EMBLÉMATIQUES ===== #}
+<section class="section bg-sand-soft">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-5 gap-3">
+            <div>
+                <span class="eyebrow">Joyaux historiques & naturels</span>
+                <h2 class="section-title mb-2">Sites touristiques <em>emblématiques</em></h2>
+                <span class="sahel-divider"></span>
+            </div>
+            <a href="{% url 'tourism:site_list' %}" class="btn btn-outline-primary align-self-start align-self-md-end">
+                Explorer le catalogue <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        {% if sites_vedettes %}
+            <div class="row g-4">
+                {% for site in sites_vedettes %}
+                    <div class="col-md-6 col-xl-3">
+                        <article class="card-ts">
+                            <div class="card-ts__media">
+                                {% if site.image_principale %}
+                                    <img src="{{ site.image_principale.url }}" alt="{{ site.nom }}" loading="lazy">
+                                {% endif %}
+                                <div class="card-ts__badge d-flex flex-wrap gap-1">
+                                    {% if site.patrimoine_unesco %}
+                                        <span class="badge-ts badge-ts--gold">
+                                            <i class="bi bi-award-fill"></i> UNESCO
+                                        </span>
+                                    {% endif %}
+                                    {% if site.categorie %}
+                                        <span class="badge-ts badge-ts--sand">
+                                            {{ site.categorie.nom }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="card-ts__body d-flex flex-column">
+                                <div class="card-ts__meta">
+                                    <span><i class="bi bi-geo-alt"></i> {{ site.destination.nom }}, {{ site.destination.region.pays.nom }}</span>
+                                </div>
+
+                                <h3 class="card-ts__title">
+                                    <a href="{% url 'tourism:site_detail' site.slug %}">{{ site.nom }}</a>
+                                </h3>
+
+                                <p class="text-muted-ts small mb-3">
+                                    {{ site.description_courte|truncatechars:95 }}
+                                </p>
+
+                                <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
+                                    <div class="card-ts__price">
+                                        {% if site.est_gratuit %}
+                                            Accès libre
+                                        {% else %}
+                                            {{ site.prix_entree|floatformat:0 }} <small>FCFA</small>
+                                        {% endif %}
+                                    </div>
+                                    {% if site.note_moyenne %}
+                                        <span class="rating fw-semibold">
+                                            <i class="bi bi-star-fill"></i> {{ site.note_moyenne|floatformat:1 }}
+                                            <small class="text-muted-ts">({{ site.nb_avis }})</small>
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-4 rounded-ts bg-white text-center border">
+                <p class="mb-0 text-muted-ts">Les sites touristiques publiés s'afficheront automatiquement dans cette section.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{# ===== 3. CIRCUITS D'EXCEPTION ===== #}
+<section class="section">
+    <div class="container">
+        <div class="section-header text-center">
+            <span class="eyebrow">Itinéraires clés en main</span>
+            <h2 class="section-title">Nos circuits <em>authentiques</em></h2>
+            <span class="sahel-divider"></span>
+            <p class="section-subtitle">
+                Des parcours conçus avec nos guides de terrain, alliant découvertes culturelles, rencontres locales et bivouacs étoilés.
+            </p>
+        </div>
+
+        {% if circuits_vedettes %}
+            <div class="row g-4">
+                {% for circuit in circuits_vedettes %}
+                    <div class="col-md-6 col-lg-4">
+                        <article class="card-ts d-flex flex-column">
+                            <div class="card-ts__media">
+                                {% if circuit.image_principale %}
+                                    <img src="{{ circuit.image_principale.url }}" alt="{{ circuit.titre }}" loading="lazy">
+                                {% endif %}
+                                <div class="card-ts__badge d-flex gap-2">
+                                    <span class="badge-ts badge-ts--earth">
+                                        <i class="bi bi-clock"></i> {{ circuit.duree_jours }} jour{{ circuit.duree_jours|pluralize }}
+                                    </span>
+                                    <span class="badge-ts">
+                                        {{ circuit.get_difficulte_display| truncatewords:1 }}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="card-ts__body d-flex flex-column flex-grow-1">
+                                <div class="card-ts__meta">
+                                    <span><i class="bi bi-pin-map"></i> Départ : {{ circuit.destination_depart.nom }}</span>
+                                    <span><i class="bi bi-people"></i> {{ circuit.participants_min }}–{{ circuit.participants_max }} pers.</span>
+                                </div>
+
+                                <h3 class="card-ts__title">
+                                    <a href="{% url 'circuits:circuit_detail' circuit.slug %}">{{ circuit.titre }}</a>
+                                </h3>
+
+                                <p class="text-muted-ts small mb-3">
+                                    {{ circuit.description_courte|truncatechars:120 }}
+                                </p>
+
+                                <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="d-block small text-muted-ts">À partir de</span>
+                                        <span class="card-ts__price">
+                                            {{ circuit.tarif_par_personne|floatformat:0 }} <small>FCFA / pers.</small>
+                                        </span>
+                                    </div>
+                                    {% if circuit.guide_referent %}
+                                        <span class="badge-ts badge-ts--sand" title="Guide référent">
+                                            <i class="bi bi-person-check-fill text-green"></i> {{ circuit.guide_referent.nom_complet }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-4 rounded-ts bg-sand-soft text-center border">
+                <p class="mb-0 text-muted-ts">Aucun circuit publié pour le moment.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{# ===== 4. GUIDES LOCAUX CERTIFIÉS ===== #}
+<section class="section bg-green">
+    <div class="container">
+        <div class="row align-items-end mb-5 g-3">
+            <div class="col-lg-8">
+                <span class="eyebrow text-gold">Ambassadeurs de leur terroir</span>
+                <h2 class="section-title mb-2">Rencontrez nos guides <em>certifiés</em></h2>
+                <span class="sahel-divider"></span>
+                <p class="text-white-50 mt-3 mb-0">
+                    Chaque guide est vérifié par notre équipe : licence officielle, maîtrise des langues locales et connaissance intime des pistes et traditions.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <a href="{% url 'guides:guide_list' %}" class="btn btn-gold">
+                    Voir tous les guides <i class="bi bi-arrow-right ms-1"></i>
+                </a>
+            </div>
+        </div>
+
+        {% if guides_vedettes %}
+            <div class="row g-4">
+                {% for guide in guides_vedettes %}
+                    <div class="col-md-6 col-xl-3">
+                        <div class="p-4 rounded-ts h-100 d-flex flex-column bg-white text-dark-ts shadow-ts">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                {% if guide.photo %}
+                                    <img src="{{ guide.photo.url }}" alt="{{ guide.nom_complet }}"
+                                         class="rounded-circle object-fit-cover" style="width:64px;height:64px;">
+                                {% else %}
+                                    <span class="avatar" style="width:64px;height:64px;font-size:1.4rem;">
+                                        {{ guide.nom_complet|first|upper }}
+                                    </span>
+                                {% endif %}
+                                <div>
+                                    <div class="d-flex align-items-center gap-1">
+                                        <h3 class="h6 mb-0 fw-bold text-green">
+                                            <a href="{% url 'guides:guide_detail' guide.slug %}" class="text-green">{{ guide.nom_complet }}</a>
+                                        </h3>
+                                        <i class="bi bi-patch-check-fill text-gold" title="Guide vérifié"></i>
+                                    </div>
+                                    <small class="text-muted-ts d-block">{{ guide.titre_professionnel|default:"Guide touristique certifié" }}</small>
+                                </div>
+                            </div>
+
+                            <p class="small text-muted-ts mb-3">
+                                {{ guide.bio|truncatechars:110 }}
+                            </p>
+
+                            <div class="d-flex flex-wrap gap-1 mb-3">
+                                {% for langue in guide.langues.all %}
+                                    <span class="badge-ts badge-ts--sand">{{ langue.nom }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center small">
+                                <span class="fw-semibold text-green">
+                                    <i class="bi bi-award text-earth"></i> {{ guide.annees_experience }} ans d'exp.
+                                </span>
+                                {% if guide.note_moyenne %}
+                                    <span class="rating fw-semibold">
+                                        <i class="bi bi-star-fill"></i> {{ guide.note_moyenne|floatformat:1 }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-4 rounded-ts text-center" style="background: rgba(255,255,255,.08);">
+                <p class="mb-0 text-white-50">Les profils des guides vérifiés s'afficheront ici dès leur validation.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{# ===== 5. AVIS RÉCENTS DES VISITEURS ===== #}
+<section class="section bg-sand">
+    <div class="container">
+        <div class="section-header text-center">
+            <span class="eyebrow">Témoignages vérifiés</span>
+            <h2 class="section-title">Ce que disent nos <em>voyageurs</em></h2>
+            <span class="sahel-divider"></span>
+        </div>
+
+        {% if avis_recents %}
+            <div class="row g-4">
+                {% for avis in avis_recents %}
+                    <div class="col-md-6 col-lg-4">
+                        <article class="bg-white p-4 rounded-ts h-100 d-flex flex-column shadow-sm border">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="rating" aria-label="Note de {{ avis.note }} sur 5">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= avis.note %}
+                                            <i class="bi bi-star-fill"></i>
+                                        {% else %}
+                                            <i class="bi bi-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                {% if avis.est_verifie %}
+                                    <span class="badge-ts badge-ts--sand">
+                                        <i class="bi bi-check-circle-fill text-green"></i> Voyageur vérifié
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            {% if avis.titre %}
+                                <h3 class="h6 fw-bold mb-2">{{ avis.titre }}</h3>
+                            {% endif %}
+
+                            <p class="text-muted-ts small mb-4 flex-grow-1">
+                                « {{ avis.commentaire|truncatechars:180 }} »
+                            </p>
+
+                            <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="avatar">{{ avis.auteur.first_name|default:avis.auteur.username|first|upper }}</span>
+                                    <div>
+                                        <div class="fw-semibold small">{{ avis.auteur }}</div>
+                                        <small class="text-muted-ts">{{ avis.created_at|date:"d F Y" }}</small>
+                                    </div>
+                                </div>
+                                <span class="badge-ts badge-ts--gold">{{ avis.cible }}</span>
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="bg-white p-4 rounded-ts text-center border">
+                <p class="mb-0 text-muted-ts">Les avis validés des voyageurs s'afficheront dans cet espace.</p>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}
+

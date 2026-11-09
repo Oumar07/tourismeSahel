@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}{{ guide.nom_complet }} — Guide certifié{% endblock %}
+{% block meta_description %}{{ guide.bio|truncatechars:155 }}{% endblock %}
+
+{% block hero %}
+<section class="page-hero" style="min-height: 280px;">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'guides:guide_list' %}">Guides</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ guide.nom_complet }}</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-wrap align-items-center gap-4">
+            {% if guide.photo %}
+                <img src="{{ guide.photo.url }}" alt="{{ guide.nom_complet }}"
+                     class="rounded-circle object-fit-cover border border-3 border-warning" style="width:96px;height:96px;">
+            {% else %}
+                <span class="avatar" style="width:96px;height:96px;font-size:2rem;">
+                    {{ guide.nom_complet|first|upper }}
+                </span>
+            {% endif %}
+            <div>
+                <span class="badge-ts badge-ts--gold mb-2">
+                    <i class="bi bi-patch-check-fill"></i> Guide certifié & vérifié
+                </span>
+                <h1 class="mb-1">{{ guide.nom_complet }}</h1>
+                <p class="lead mb-0">{{ guide.titre_professionnel|default:"Guide touristique national" }}</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row g-5">
+
+            {# Présentation, spécialités, circuits et avis #}
+            <div class="col-lg-8">
+                <div class="mb-5">
+                    <span class="eyebrow">Parcours & passion</span>
+                    <h2 class="h3 mb-3">À propos de {{ guide.nom_complet }}</h2>
+                    <div>{{ guide.bio|linebreaks }}</div>
+                </div>
+
+                {% if guide.specialites.all %}
+                    <div class="mb-5">
+                        <span class="eyebrow">Domaines d'expertise</span>
+                        <h2 class="h4 mb-3">Spécialités</h2>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for sp in guide.specialites.all %}
+                                <span class="badge-ts badge-ts--sand fs-6 text-none">
+                                    {% if sp.icone %}<i class="bi {{ sp.icone }} text-earth"></i>{% endif %} {{ sp.nom }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# Circuits animés par ce guide #}
+                <div class="mb-5">
+                    <span class="eyebrow">Partir ensemble</span>
+                    <h2 class="h4 mb-3">Circuits accompagnés par {{ guide.nom_complet }}</h2>
+                    {% if circuits_animes %}
+                        <div class="row g-4">
+                            {% for circuit in circuits_animes %}
+                                <div class="col-md-6">
+                                    <article class="card-ts">
+                                        <div class="card-ts__media">
+                                            {% if circuit.image_principale %}
+                                                <img src="{{ circuit.image_principale.url }}" alt="{{ circuit.titre }}" loading="lazy">
+                                            {% endif %}
+                                            <div class="card-ts__badge">
+                                                <span class="badge-ts badge-ts--earth">{{ circuit.duree_jours }} jour{{ circuit.duree_jours|pluralize }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="card-ts__body">
+                                            <h3 class="card-ts__title">
+                                                <a href="{% url 'circuits:circuit_detail' circuit.slug %}">{{ circuit.titre }}</a>
+                                            </h3>
+                                            <p class="small text-muted-ts mb-2">{{ circuit.description_courte|truncatechars:95 }}</p>
+                                            <div class="card-ts__price">
+                                                {{ circuit.tarif_par_personne|floatformat:0 }} <small>FCFA / pers.</small>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted-ts">Vous pouvez sélectionner {{ guide.nom_complet }} sur tout circuit de sa région.</p>
+                    {% endif %}
+                </div>
+
+                {# Avis sur le guide #}
+                <div>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h4 mb-0">Avis des voyageurs ({{ stats_avis.total }})</h2>
+                        {% if stats_avis.moyenne %}
+                            <span class="badge-ts badge-ts--gold fs-6">
+                                <i class="bi bi-star-fill"></i> {{ stats_avis.moyenne|floatformat:1 }} / 5
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% if avis_list %}
+                        <div class="vstack gap-3">
+                            {% for avis in avis_list %}
+                                <article class="p-4 rounded-ts bg-white border shadow-sm">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-semibold small">{{ avis.auteur }}</span>
+                                        <span class="rating">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= avis.note %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
+                                            {% endfor %}
+                                        </span>
+                                    </div>
+                                    {% if avis.titre %}<h3 class="h6 fw-bold mb-1">{{ avis.titre }}</h3>{% endif %}
+                                    <p class="small text-muted-ts mb-0">{{ avis.commentaire }}</p>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-4 rounded-ts bg-sand-soft border text-muted-ts">
+                            Aucun avis publié pour ce guide pour le moment.
+                        </div>
+                    {% endif %}
+
+                    <div class="mt-4 p-4 rounded-ts bg-sand-soft border">
+                        <h3 class="h5 mb-3">Recommander {{ guide.nom_complet }}</h3>
+                        {% if user.is_authenticated %}
+                            {% if deja_note %}
+                                <p class="small text-muted-ts mb-0">Vous avez déjà publié un avis pour ce guide.</p>
+                            {% else %}
+                                <form method="post" action="{% url 'reviews:add_review' 'guide' guide.slug %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.path }}">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="{{ avis_form.note.id_for_label }}" class="form-label">{{ avis_form.note.label }}</label>
+                                            {{ avis_form.note }}
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label for="{{ avis_form.titre.id_for_label }}" class="form-label">{{ avis_form.titre.label }}</label>
+                                            {{ avis_form.titre }}
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="{{ avis_form.commentaire.id_for_label }}" class="form-label">{{ avis_form.commentaire.label }}</label>
+                                            {{ avis_form.commentaire }}
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary">Publier mon avis</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary btn-sm">
+                                Se connecter pour laisser un avis
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# Barre latérale #}
+            <div class="col-lg-4">
+                <aside class="bg-sand-soft p-4 rounded-ts border sticky-lg-top" style="top: 96px;">
+                    <h2 class="h5 mb-3">Informations professionnelles</h2>
+                    <dl class="row small g-2 mb-3">
+                        <dt class="col-6 text-muted-ts">Expérience</dt>
+                        <dd class="col-6 fw-semibold">{{ guide.annees_experience }} ans</dd>
+
+                        {% if guide.tarif_journalier %}
+                            <dt class="col-6 text-muted-ts">Tarif indicatif</dt>
+                            <dd class="col-6 fw-semibold text-green">{{ guide.tarif_journalier|floatformat:0 }} FCFA / j</dd>
+                        {% endif %}
+
+                        {% if guide.numero_licence %}
+                            <dt class="col-6 text-muted-ts">Licence officielle</dt>
+                            <dd class="col-6 fw-semibold">{{ guide.numero_licence }}</dd>
+                        {% endif %}
+                    </dl>
+
+                    <div class="mb-3">
+                        <div class="small text-muted-ts mb-1">Langues parlées</div>
+                        <div class="d-flex flex-wrap gap-1">
+                            {% for lg in guide.langues.all %}
+                                <span class="badge-ts badge-ts--green">{{ lg.nom }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {% if guide.regions.all %}
+                        <div class="mb-4">
+                            <div class="small text-muted-ts mb-1">Régions d'intervention</div>
+                            <div class="d-flex flex-wrap gap-1">
+                                {% for reg in guide.regions.all %}
+                                    <span class="badge-ts badge-ts--sand">{{ reg.nom }} ({{ reg.pays.nom }})</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <a href="{% url 'bookings:create' %}?guide={{ guide.slug }}" class="btn btn-primary w-100 mb-2">
+                        <i class="bi bi-calendar-check me-1"></i> Réserver avec ce guide
+                    </a>
+
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'reviews:toggle_favorite' 'guide' guide.slug %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="btn {% if est_en_favori %}btn-earth{% else %}btn-gold{% endif %} w-100">
+                                <i class="bi {% if est_en_favori %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                                {% if est_en_favori %}Retirer de mes favoris{% else %}Ajouter à mes favoris{% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+                </aside>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+

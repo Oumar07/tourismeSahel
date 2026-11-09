@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}À propos de TourismeSahel{% endblock %}
+
+{% block hero %}
+<section class="page-hero"
+         style="--hero-img: url('{% static 'img/places/tombouctou_djingareyber.jpg' %}');">
+    <div class="container">
+        <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-compass"></i> Notre mission</span>
+        <h1 class="mb-2">Valoriser l'âme et le patrimoine du <span class="text-gold">Sahel</span></h1>
+        <p class="lead mb-0">
+            TourismeSahel connecte directement les voyageurs curieux de culture aux guides locaux certifiés d'Afrique de l'Ouest.
+        </p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row g-5 align-items-center mb-5">
+            <div class="col-lg-6">
+                <span class="eyebrow">Qui sommes-nous ?</span>
+                <h2 class="section-title">Un tourisme <em>humain, authentique et durable</em></h2>
+                <span class="sahel-divider mb-4"></span>
+                <p>
+                    Des cités millénaires en terre crue de Djenné et d'Agadez aux manuscrits anciens de Tombouctou, en passant
+                    par les sanctuaires ornithologiques du fleuve Sénégal et les falaises du Pays Dogon, le Sahel abrite certains
+                    des trésors culturels et naturels les plus précieux du continent africain.
+                </p>
+                <p class="text-muted-ts mb-0">
+                    Notre plateforme a été conçue pour offrir une vitrine numérique d'excellence à ces territoires tout en garantissant
+                    une rémunération juste et directe aux guides professionnels, artisans et campements communautaires.
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="p-4 rounded-ts bg-sand-soft border text-center">
+                            <div class="display-6 fw-bold text-green">{{ stats.nb_pays|default:4 }}</div>
+                            <div class="small text-muted-ts">Pays couverts</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-4 rounded-ts bg-sand-soft border text-center">
+                            <div class="display-6 fw-bold text-earth">{{ stats.nb_destinations|default:6 }}</div>
+                            <div class="small text-muted-ts">Destinations phares</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-4 rounded-ts bg-sand-soft border text-center">
+                            <div class="display-6 fw-bold text-green">{{ stats.nb_sites|default:8 }}</div>
+                            <div class="small text-muted-ts">Sites patrimoniaux</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="p-4 rounded-ts bg-sand-soft border text-center">
+                            <div class="display-6 fw-bold text-earth">{{ stats.nb_guides|default:4 }}</div>
+                            <div class="small text-muted-ts">Guides 100 % vérifiés</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 rounded-ts bg-white border shadow-sm h-100">
+                    <i class="bi bi-patch-check-fill fs-2 text-gold d-block mb-3"></i>
+                    <h3 class="h5">Guides officiels vérifiés</h3>
+                    <p class="small text-muted-ts mb-0">
+                        Chaque guide inscrit présente sa licence nationale et son expérience de terrain avant la validation de son profil par notre équipe.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 rounded-ts bg-white border shadow-sm h-100">
+                    <i class="bi bi-shield-check fs-2 text-green d-block mb-3"></i>
+                    <h3 class="h5">Tarifs transparents & figés</h3>
+                    <p class="small text-muted-ts mb-0">
+                        Dès votre demande de réservation, le tarif par personne est figé sur votre dossier unique, sans frais cachés.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 rounded-ts bg-white border shadow-sm h-100">
+                    <i class="bi bi-globe-europe-africa fs-2 text-earth d-block mb-3"></i>
+                    <h3 class="h5">Respect du patrimoine</h3>
+                    <p class="small text-muted-ts mb-0">
+                        Petits groupes, hébergements de caractère et soutien direct aux initiatives locales de préservation culturelle et écologique.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 p-5 rounded-ts bg-green text-center">
+            <h2 class="h3 mb-3">Prêt à préparer votre prochaine aventure au Sahel ?</h2>
+            <div class="d-flex flex-wrap justify-content-center gap-3">
+                <a href="{% url 'circuits:circuit_list' %}" class="btn btn-gold btn-lg">Découvrir nos circuits</a>
+                <a href="{% url 'core:contact' %}" class="btn btn-outline-light btn-lg">Nous contacter</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

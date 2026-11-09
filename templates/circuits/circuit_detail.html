@@ -1,0 +1,257 @@
+{% extends "base.html" %}
+
+{% block title %}{{ circuit.titre }} — Circuit {{ circuit.duree_jours }} jours{% endblock %}
+{% block meta_description %}{{ circuit.description_courte }}{% endblock %}
+
+{% block hero %}
+<section class="page-hero"
+         {% if circuit.image_principale %}style="--hero-img: url('{{ circuit.image_principale.url }}');"{% endif %}>
+    <div class="container">
+        <nav aria-label="Fil d'Ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ circuit.titre }}</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="badge-ts badge-ts--gold">
+                <i class="bi bi-clock"></i> {{ circuit.duree_jours }} jour{{ circuit.duree_jours|pluralize }}
+            </span>
+            <span class="badge-ts badge-ts--earth">
+                {{ circuit.get_difficulte_display }}
+            </span>
+            <span class="badge-ts">
+                <i class="bi bi-geo-alt-fill text-earth"></i> Départ : {{ circuit.destination_depart.nom }} ({{ circuit.destination_depart.region.pays.nom }})
+            </span>
+        </div>
+
+        <h1 class="mb-2">{{ circuit.titre }}</h1>
+        <p class="lead mb-0">{{ circuit.description_courte }}</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row g-5">
+
+            {# Colonne principale #}
+            <div class="col-lg-8">
+
+                {# Présentation #}
+                <div class="mb-5">
+                    <span class="eyebrow">Esprit du voyage</span>
+                    <h2 class="h3 mb-3">Présentation de l'itinéraire</h2>
+                    <div>{{ circuit.description|linebreaks }}</div>
+                </div>
+
+                {# Étapes structurées / Programme jour par jour #}
+                <div class="mb-5">
+                    <span class="eyebrow">Programme jour par jour</span>
+                    <h2 class="h4 mb-4">Déroulé du circuit</h2>
+
+                    {% if etapes %}
+                        <div class="vstack gap-3 mb-4">
+                            {% for etape in etapes %}
+                                <div class="p-4 rounded-ts bg-sand-soft border">
+                                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                                        <span class="badge-ts badge-ts--green">Jour {{ etape.jour }} · Étape {{ etape.ordre }}</span>
+                                        {% if etape.site %}
+                                            <a href="{% url 'tourism:site_detail' etape.site.slug %}" class="small fw-semibold">
+                                                <i class="bi bi-bank me-1 text-earth"></i>{{ etape.site.nom }}
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                    <h3 class="h5 mb-2">{{ etape.titre }}</h3>
+                                    {% if etape.description %}
+                                        <p class="text-muted-ts small mb-2">{{ etape.description }}</p>
+                                    {% endif %}
+                                    <div class="d-flex flex-wrap gap-3 small text-muted-ts pt-2 border-top">
+                                        {% if etape.hebergement %}
+                                            <span><i class="bi bi-house-heart text-earth me-1"></i>{{ etape.hebergement }}</span>
+                                        {% endif %}
+                                        {% if etape.repas_inclus %}
+                                            <span><i class="bi bi-cup-hot text-earth me-1"></i>{{ etape.repas_inclus }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    {% if circuit.programme_detaille %}
+                        <div class="p-4 rounded-ts bg-white border">
+                            <h3 class="h6 fw-bold mb-2"><i class="bi bi-map text-earth me-2"></i>Synthèse du parcours</h3>
+                            <div class="small text-muted-ts mb-0">{{ circuit.programme_detaille|linebreaks }}</div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# Inclus / Non inclus #}
+                {% if inclus_liste or non_inclus_liste %}
+                    <div class="row g-4 mb-5">
+                        {% if inclus_liste %}
+                            <div class="col-md-6">
+                                <div class="p-4 rounded-ts bg-white border h-100">
+                                    <h3 class="h5 mb-3 text-green"><i class="bi bi-check-circle-fill me-2"></i>Ce qui est inclus</h3>
+                                    <ul class="list-unstyled vstack gap-2 small mb-0">
+                                        {% for item in inclus_liste %}
+                                            <li><i class="bi bi-check2 text-green me-2 fw-bold"></i>{{ item }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                        {% if non_inclus_liste %}
+                            <div class="col-md-6">
+                                <div class="p-4 rounded-ts bg-white border h-100">
+                                    <h3 class="h5 mb-3 text-earth"><i class="bi bi-x-circle-fill me-2"></i>Non inclus</h3>
+                                    <ul class="list-unstyled vstack gap-2 small mb-0">
+                                        {% for item in non_inclus_liste %}
+                                            <li><i class="bi bi-dash text-muted-ts me-2"></i>{{ item }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+
+                {# Avis des voyageurs #}
+                <div>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                        <div>
+                            <span class="eyebrow">Retours d'expérience</span>
+                            <h2 class="h4 mb-0">Avis sur ce circuit ({{ stats_avis.total }})</h2>
+                        </div>
+                        {% if stats_avis.moyenne %}
+                            <span class="badge-ts badge-ts--gold fs-6">
+                                <i class="bi bi-star-fill"></i> {{ stats_avis.moyenne|floatformat:1 }} / 5
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% if avis_list %}
+                        <div class="vstack gap-3">
+                            {% for avis in avis_list %}
+                                <article class="p-4 rounded-ts bg-white border shadow-sm">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="fw-semibold small">{{ avis.auteur }}</div>
+                                        <span class="rating">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= avis.note %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
+                                            {% endfor %}
+                                        </span>
+                                    </div>
+                                    {% if avis.titre %}<h3 class="h6 fw-bold mb-1">{{ avis.titre }}</h3>{% endif %}
+                                    <p class="small text-muted-ts mb-0">{{ avis.commentaire }}</p>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-4 rounded-ts bg-sand-soft border text-muted-ts">
+                            Soyez le premier voyageur à partager votre avis sur ce circuit.
+                        </div>
+                    {% endif %}
+
+                    {# Dépôt d'un avis #}
+                    <div class="mt-4 p-4 rounded-ts bg-sand-soft border">
+                        <h3 class="h5 mb-3"><i class="bi bi-chat-square-quote text-earth me-2"></i>Donner votre avis</h3>
+                        {% if user.is_authenticated %}
+                            {% if deja_note %}
+                                <p class="small text-muted-ts mb-0">Vous avez déjà laissé un avis sur ce circuit.</p>
+                            {% else %}
+                                <form method="post" action="{% url 'reviews:add_review' 'circuit' circuit.slug %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.path }}">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="{{ avis_form.note.id_for_label }}" class="form-label">{{ avis_form.note.label }}</label>
+                                            {{ avis_form.note }}
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label for="{{ avis_form.titre.id_for_label }}" class="form-label">{{ avis_form.titre.label }}</label>
+                                            {{ avis_form.titre }}
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="{{ avis_form.commentaire.id_for_label }}" class="form-label">{{ avis_form.commentaire.label }}</label>
+                                            {{ avis_form.commentaire }}
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary">Publier mon avis</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary btn-sm">
+                                Se connecter pour laisser un avis
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+            {# Encart latéral de réservation #}
+            <div class="col-lg-4">
+                <aside class="bg-sand-soft p-4 rounded-ts border sticky-lg-top" style="top: 96px;">
+                    <div class="pb-3 mb-3 border-bottom">
+                        <span class="d-block small text-muted-ts">Tarif garanti</span>
+                        <div class="card-ts__price fs-3">
+                            {{ circuit.tarif_par_personne|floatformat:0 }} <small>FCFA / personne</small>
+                        </div>
+                    </div>
+
+                    <dl class="row small mb-3 g-2">
+                        <dt class="col-6 text-muted-ts"><i class="bi bi-clock text-earth me-1"></i>Durée</dt>
+                        <dd class="col-6 fw-semibold">{{ circuit.duree_jours }} jour{{ circuit.duree_jours|pluralize }}</dd>
+
+                        <dt class="col-6 text-muted-ts"><i class="bi bi-people text-earth me-1"></i>Groupe</dt>
+                        <dd class="col-6 fw-semibold">{{ circuit.participants_min }} à {{ circuit.participants_max }} pers.</dd>
+
+                        <dt class="col-6 text-muted-ts"><i class="bi bi-geo-alt text-earth me-1"></i>Départ</dt>
+                        <dd class="col-6 fw-semibold">
+                            <a href="{% url 'locations:destination_detail' circuit.destination_depart.slug %}">
+                                {{ circuit.destination_depart.nom }}
+                            </a>
+                        </dd>
+                    </dl>
+
+                    {% if circuit.guide_referent %}
+                        <div class="p-3 rounded-3 bg-white border mb-3 d-flex align-items-center gap-3">
+                            <span class="avatar">{{ circuit.guide_referent.nom_complet|first|upper }}</span>
+                            <div>
+                                <div class="small text-muted-ts">Guide référent</div>
+                                <a href="{% url 'guides:guide_detail' circuit.guide_referent.slug %}" class="fw-semibold small">
+                                    {{ circuit.guide_referent.nom_complet }} <i class="bi bi-patch-check-fill text-gold"></i>
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <a href="{% url 'bookings:create_for_circuit' circuit.slug %}" class="btn btn-primary w-100 btn-lg mb-2">
+                        <i class="bi bi-calendar-check me-1"></i> Réserver ce circuit
+                    </a>
+
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'reviews:toggle_favorite' 'circuit' circuit.slug %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="btn {% if est_en_favori %}btn-earth{% else %}btn-gold{% endif %} w-100">
+                                <i class="bi {% if est_en_favori %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                                {% if est_en_favori %}Retirer des favoris{% else %}Enregistrer en favori{% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+                </aside>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+

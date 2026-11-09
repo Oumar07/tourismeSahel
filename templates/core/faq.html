@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Questions fréquentes (FAQ){% endblock %}
+
+{% block hero %}
+<section class="page-hero" style="min-height: 240px;">
+    <div class="container">
+        <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-question-circle"></i> Aide aux voyageurs</span>
+        <h1 class="mb-1">Foire aux <span class="text-gold">questions</span></h1>
+        <p class="lead mb-0">Tout savoir pour préparer sereinement votre séjour au Sahel.</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container" style="max-width: 860px;">
+        <div class="accordion vstack gap-3" id="faqAccordion">
+            <div class="accordion-item rounded-ts border overflow-hidden">
+                <h2 class="accordion-header">
+                    <button class="accordion-button fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                        Quelle est la meilleure saison pour voyager au Sahel ?
+                    </button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-muted-ts">
+                        La saison sèche et tempérée, de <strong>novembre à février</strong> (et jusqu'en avril sur la côte sénégalaise), offre des températures idéales en journée et des nuits étoilées agréables, ainsi que le pic de présence des oiseaux migrateurs au parc du Djoudj.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item rounded-ts border overflow-hidden">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                        Comment fonctionne une demande de réservation sur TourismeSahel ?
+                    </button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-muted-ts">
+                        Vous choisissez votre circuit, votre date de départ et le nombre de voyageurs. Une référence unique (ex. <code>TS-2026-XXXXXX</code>) est immédiatement créée avec un tarif figé. Notre équipe vérifie la disponibilité du guide et confirme votre dossier depuis le tableau de bord.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item rounded-ts border overflow-hidden">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                        Comment sont sélectionnés et vérifiés les guides ?
+                    </button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-muted-ts">
+                        Chaque guide doit fournir sa carte ou licence officielle délivrée par le ministère du Tourisme de son pays, justifier de son expérience et maîtriser les langues locales des régions traversées.
+                    </div>
+                </div>
+            </div>
+
+            <div class="accordion-item rounded-ts border overflow-hidden">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                        Puis-je annuler une demande de réservation ?
+                    </button>
+                </h2>
+                <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body text-muted-ts">
+                        Oui : tant que votre réservation est au statut « En attente », vous pouvez l'annuler en un clic depuis votre espace visiteur. Pour toute modification ultérieure, contactez-nous directement.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

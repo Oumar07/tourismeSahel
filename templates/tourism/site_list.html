@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sites touristiques & monuments du Sahel{% endblock %}
+
+{% block hero %}
+<section class="page-hero"
+         style="--hero-img: url('{% static 'img/places/agadez_mosquee_air.jpg' %}');">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Sites touristiques</li>
+            </ol>
+        </nav>
+        <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-bank"></i> Catalogue patrimonial & naturel</span>
+        <h1 class="mb-2">Sites <span class="text-gold">touristiques</span></h1>
+        <p class="lead mb-0">
+            Monuments en terre crue, parcs nationaux, réserves ornithologiques et hauts lieux spirituels du Sahel.
+        </p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        {# Filtres multicritères #}
+        <form method="get" class="bg-sand-soft p-4 rounded-ts border mb-5">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="sQ" class="form-label">Mot-clé</label>
+                    <input type="search" id="sQ" name="q" value="{{ filtres.q }}" class="form-control"
+                           placeholder="Mosquée, parc, falaise, musée…">
+                </div>
+                <div class="col-sm-6 col-md-2">
+                    <label for="sPays" class="form-label">Pays</label>
+                    <select id="sPays" name="pays" class="form-select">
+                        <option value="">Tous</option>
+                        {% for pays in pays_list %}
+                            <option value="{{ pays.slug }}" {% if filtres.pays == pays.slug %}selected{% endif %}>
+                                {{ pays.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-6 col-md-2">
+                    <label for="sDest" class="form-label">Destination</label>
+                    <select id="sDest" name="destination" class="form-select">
+                        <option value="">Toutes</option>
+                        {% for dest in destinations_list %}
+                            <option value="{{ dest.slug }}" {% if filtres.destination == dest.slug %}selected{% endif %}>
+                                {{ dest.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-6 col-md-2">
+                    <label for="sCat" class="form-label">Catégorie</label>
+                    <select id="sCat" name="categorie" class="form-select">
+                        <option value="">Toutes</option>
+                        {% for cat in categories_list %}
+                            <option value="{{ cat.slug }}" {% if filtres.categorie == cat.slug %}selected{% endif %}>
+                                {{ cat.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-6 col-md-2">
+                    <label for="sTri" class="form-label">Trier par</label>
+                    <select id="sTri" name="tri" class="form-select">
+                        <option value="" {% if not filtres.tri %}selected{% endif %}>Pertinence</option>
+                        <option value="note" {% if filtres.tri == "note" %}selected{% endif %}>Meilleure note</option>
+                        <option value="prix_asc" {% if filtres.tri == "prix_asc" %}selected{% endif %}>Prix croissant</option>
+                        <option value="prix_desc" {% if filtres.tri == "prix_desc" %}selected{% endif %}>Prix décroissant</option>
+                    </select>
+                </div>
+
+                <div class="col-12 d-flex flex-wrap justify-content-between align-items-center pt-2 gap-3">
+                    <div class="d-flex flex-wrap gap-4">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sUnesco" name="unesco" value="1"
+                                   {% if filtres.unesco == "1" %}checked{% endif %}>
+                            <label class="form-check-label small" for="sUnesco">
+                                <i class="bi bi-award-fill text-gold"></i> Patrimoine mondial UNESCO
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="sGratuit" name="gratuit" value="1"
+                                   {% if filtres.gratuit == "1" %}checked{% endif %}>
+                            <label class="form-check-label small" for="sGratuit">
+                                Entrée gratuite uniquement
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'tourism:site_list' %}" class="btn btn-sm btn-outline-primary">Réinitialiser</a>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="bi bi-funnel me-1"></i> Appliquer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        {# Grille des sites #}
+        {% if sites %}
+            <div class="row g-4">
+                {% for site in sites %}
+                    <div class="col-md-6 col-lg-4">
+                        <article class="card-ts d-flex flex-column">
+                            <div class="card-ts__media">
+                                {% if site.image_principale %}
+                                    <img src="{{ site.image_principale.url }}" alt="{{ site.nom }}" loading="lazy">
+                                {% endif %}
+                                <div class="card-ts__badge d-flex flex-wrap gap-1">
+                                    {% if site.patrimoine_unesco %}
+                                        <span class="badge-ts badge-ts--gold">
+                                            <i class="bi bi-award-fill"></i> UNESCO
+                                        </span>
+                                    {% endif %}
+                                    {% if site.categorie %}
+                                        <span class="badge-ts badge-ts--sand">
+                                            {{ site.categorie.nom }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="card-ts__body d-flex flex-column flex-grow-1">
+                                <div class="card-ts__meta">
+                                    <span><i class="bi bi-geo-alt"></i> {{ site.destination.nom }} ({{ site.destination.region.pays.nom }})</span>
+                                    {% if site.duree_visite_minutes %}
+                                        <span><i class="bi bi-stopwatch"></i> ~{{ site.duree_visite_minutes }} min</span>
+                                    {% endif %}
+                                </div>
+
+                                <h2 class="card-ts__title">
+                                    <a href="{% url 'tourism:site_detail' site.slug %}">{{ site.nom }}</a>
+                                </h2>
+
+                                <p class="text-muted-ts small mb-3">
+                                    {{ site.description_courte|truncatechars:125 }}
+                                </p>
+
+                                <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                                    <div class="card-ts__price">
+                                        {% if site.est_gratuit %}
+                                            Accès libre
+                                        {% else %}
+                                            {{ site.prix_entree|floatformat:0 }} <small>FCFA</small>
+                                        {% endif %}
+                                    </div>
+                                    {% if site.note_moyenne %}
+                                        <span class="rating fw-semibold">
+                                            <i class="bi bi-star-fill"></i> {{ site.note_moyenne|floatformat:1 }}
+                                            <small class="text-muted-ts">({{ site.nb_avis }})</small>
+                                        </span>
+                                    {% else %}
+                                        <small class="text-muted-ts">Nouveau</small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {# Pagination #}
+            {% if is_paginated %}
+                <nav class="mt-5" aria-label="Pagination des sites">
+                    <ul class="pagination justify-content-center gap-1">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link rounded-pill px-3"
+                                   href="?page={{ page_obj.previous_page_number }}&q={{ filtres.q }}&pays={{ filtres.pays }}&destination={{ filtres.destination }}&categorie={{ filtres.categorie }}&unesco={{ filtres.unesco }}&gratuit={{ filtres.gratuit }}&tri={{ filtres.tri }}">
+                                    <i class="bi bi-chevron-left"></i> Précédent
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="page-item active">
+                            <span class="page-link rounded-pill px-3">
+                                Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link rounded-pill px-3"
+                                   href="?page={{ page_obj.next_page_number }}&q={{ filtres.q }}&pays={{ filtres.pays }}&destination={{ filtres.destination }}&categorie={{ filtres.categorie }}&unesco={{ filtres.unesco }}&gratuit={{ filtres.gratuit }}&tri={{ filtres.tri }}">
+                                    Suivant <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="p-5 rounded-ts bg-sand-soft text-center border">
+                <i class="bi bi-bank display-5 text-earth d-block mb-3"></i>
+                <h2 class="h5">Aucun site touristique trouvé</h2>
+                <p class="text-muted-ts mb-3">Aucun site ne correspond aux filtres sélectionnés.</p>
+                <a href="{% url 'tourism:site_list' %}" class="btn btn-primary btn-sm">Afficher tout le catalogue</a>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}
+

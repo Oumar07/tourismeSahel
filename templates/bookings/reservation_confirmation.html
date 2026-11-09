@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block title %}Confirmation {{ reservation.reference }}{% endblock %}
+
+{% block content %}
+<section class="section bg-sand-soft">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="bg-white p-4 p-md-5 rounded-ts shadow-ts border">
+
+                    <div class="text-center pb-4 mb-4 border-bottom">
+                        <div class="d-inline-grid place-items-center rounded-circle mb-3"
+                             style="width:68px;height:68px;background:var(--ts-green-50);color:var(--ts-green);font-size:2rem;">
+                            <i class="bi bi-check2-circle"></i>
+                        </div>
+                        <span class="eyebrow d-block mb-1">Demande enregistrée</span>
+                        <h1 class="h3 mb-2">Merci, {{ reservation.nom_visiteur }} !</h1>
+                        <p class="text-muted-ts small mb-3">
+                            Conservez précieusement votre numéro de référence pour suivre l'avancement de votre dossier.
+                        </p>
+                        <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill bg-sand border">
+                            <span class="small text-muted-ts">Référence :</span>
+                            <strong class="fs-5 text-green font-heading">{{ reservation.reference }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="row g-4 mb-4 small">
+                        <div class="col-sm-6">
+                            <h2 class="h6 fw-bold text-earth text-uppercase mb-2">Voyageur principal</h2>
+                            <div><strong>{{ reservation.nom_visiteur }}</strong></div>
+                            <div>{{ reservation.email_visiteur }}</div>
+                            <div>{{ reservation.telephone_visiteur }}</div>
+                            {% if reservation.pays_visiteur %}
+                                <div>{{ reservation.pays_visiteur.nom }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="col-sm-6">
+                            <h2 class="h6 fw-bold text-earth text-uppercase mb-2">Statut & suivi</h2>
+                            <div class="mb-1">
+                                État actuel :
+                                <span class="badge-ts badge-ts--gold">{{ reservation.get_statut_display }}</span>
+                            </div>
+                            <div>Enregistrée le {{ reservation.created_at|date:"d/m/Y à H:i" }}</div>
+                            {% if reservation.guide %}
+                                <div>Guide assigné : <strong>{{ reservation.guide.nom_complet }}</strong></div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="p-4 rounded-ts bg-sand-soft border mb-4">
+                        <h2 class="h6 fw-bold text-earth text-uppercase mb-3">Détail de la prestation</h2>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Circuit</span>
+                            <strong>{{ reservation.circuit.titre }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Destination de départ</span>
+                            <strong>{{ reservation.circuit.destination_depart.nom }} ({{ reservation.circuit.destination_depart.region.pays.nom }})</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Période du séjour</span>
+                            <strong>
+                                Du {{ reservation.date_depart|date:"d/m/Y" }}
+                                {% if reservation.date_fin %}au {{ reservation.date_fin|date:"d/m/Y" }}{% endif %}
+                                ({{ reservation.circuit.duree_jours }} jour{{ reservation.circuit.duree_jours|pluralize }})
+                            </strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Voyageurs</span>
+                            <strong>{{ reservation.nombre_personnes }} personne{{ reservation.nombre_personnes|pluralize }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Tarif unitaire figé</span>
+                            <strong>{{ reservation.prix_unitaire|floatformat:0 }} FCFA / pers.</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <span class="fw-bold">Montant total</span>
+                            <span class="card-ts__price fs-4">{{ reservation.montant_total|floatformat:0 }} <small>FCFA</small></span>
+                        </div>
+                    </div>
+
+                    {% if reservation.demandes_speciales %}
+                        <div class="mb-4 small">
+                            <strong class="d-block mb-1">Demandes particulières :</strong>
+                            <p class="mb-0 text-muted-ts">{{ reservation.demandes_speciales }}</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-flex flex-wrap justify-content-between gap-2 pt-3 border-top">
+                        <button type="button" onclick="window.print()" class="btn btn-outline-primary">
+                            <i class="bi bi-printer me-1"></i> Imprimer le récapitulatif
+                        </button>
+                        <div class="d-flex gap-2">
+                            {% if user.is_authenticated %}
+                                <a href="{% url 'accounts:dashboard' %}" class="btn btn-primary">
+                                    <i class="bi bi-speedometer2 me-1"></i> Mon espace visiteur
+                                </a>
+                            {% else %}
+                                <a href="{% url 'core:home' %}" class="btn btn-primary">
+                                    Retour à l'accueil
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

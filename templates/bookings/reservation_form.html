@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}Demande de réservation{% endblock %}
+
+{% block hero %}
+<section class="page-hero" style="min-height: 260px;">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Réservation</li>
+            </ol>
+        </nav>
+        <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-calendar-check"></i> Tunnel de réservation</span>
+        <h1 class="mb-2">Planifiez votre <span class="text-gold">voyage</span></h1>
+        <p class="lead mb-0">
+            Remplissez votre demande : le tarif par personne est garanti et un numéro de suivi unique vous est attribué immédiatement.
+        </p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row g-5">
+
+            {# Formulaire principal (POST sécurisé par CSRF) #}
+            <div class="col-lg-8">
+                <div class="bg-white p-4 p-md-5 rounded-ts border shadow-sm">
+                    <h2 class="h4 mb-4">1. Détails du circuit & des dates</h2>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger small" role="alert">
+                            {% for err in form.non_field_errors %}
+                                <div>{{ err }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" novalidate id="bookingForm">
+                        {% csrf_token %}
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-12">
+                                <label for="{{ form.circuit.id_for_label }}" class="form-label">{{ form.circuit.label }} *</label>
+                                {{ form.circuit }}
+                                {% for err in form.circuit.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.date_depart.id_for_label }}" class="form-label">{{ form.date_depart.label }} *</label>
+                                {{ form.date_depart }}
+                                {% for err in form.date_depart.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.nombre_personnes.id_for_label }}" class="form-label">{{ form.nombre_personnes.label }} *</label>
+                                {{ form.nombre_personnes }}
+                                {% for err in form.nombre_personnes.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-12">
+                                <label for="{{ form.guide.id_for_label }}" class="form-label">{{ form.guide.label }}</label>
+                                {{ form.guide }}
+                                <div class="form-text">
+                                    Si vous laissez ce champ par défaut, le guide référent du circuit assurera votre accompagnement.
+                                </div>
+                                {% for err in form.guide.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        <h2 class="h4 mb-4">2. Coordonnées du voyageur principal</h2>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="{{ form.nom_visiteur.id_for_label }}" class="form-label">{{ form.nom_visiteur.label }} *</label>
+                                {{ form.nom_visiteur }}
+                                {% for err in form.nom_visiteur.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.pays_visiteur.id_for_label }}" class="form-label">{{ form.pays_visiteur.label }}</label>
+                                {{ form.pays_visiteur }}
+                                {% for err in form.pays_visiteur.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.email_visiteur.id_for_label }}" class="form-label">{{ form.email_visiteur.label }} *</label>
+                                {{ form.email_visiteur }}
+                                {% for err in form.email_visiteur.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.telephone_visiteur.id_for_label }}" class="form-label">{{ form.telephone_visiteur.label }} *</label>
+                                {{ form.telephone_visiteur }}
+                                {% for err in form.telephone_visiteur.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-12">
+                                <label for="{{ form.demandes_speciales.id_for_label }}" class="form-label">{{ form.demandes_speciales.label }}</label>
+                                {{ form.demandes_speciales }}
+                                {% for err in form.demandes_speciales.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-gold btn-lg w-100">
+                            <i class="bi bi-check2-circle me-1"></i> Confirmer ma demande de réservation
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            {# Encadré latéral de vérification en direct #}
+            <div class="col-lg-4">
+                <aside class="bg-sand-soft p-4 rounded-ts border sticky-lg-top" style="top: 96px;">
+                    <span class="eyebrow">Vérification</span>
+                    <h3 class="h5 mb-3">Récapitulatif estimatif</h3>
+
+                    <div id="summaryBox" class="vstack gap-2 small">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted-ts">Durée du séjour</span>
+                            <strong id="sumDuree">—</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted-ts">Groupe autorisé</span>
+                            <strong id="sumGroupe">—</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="text-muted-ts">Tarif par personne</span>
+                            <strong id="sumUnitaire">—</strong>
+                        </div>
+                        <hr class="my-2">
+                        <div class="d-flex justify-content-between align-items-baseline">
+                            <span class="fw-semibold">Montant total estimé</span>
+                            <span class="card-ts__price fs-4" id="sumTotal">—</span>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-top small text-muted-ts">
+                        <p class="mb-2"><i class="bi bi-shield-check text-green me-1"></i> <strong>Tarif garanti :</strong> le prix unitaire est figé au moment de votre réservation.</p>
+                        <p class="mb-0"><i class="bi bi-arrow-counterclockwise text-earth me-1"></i> <strong>Annulation souple :</strong> gratuite depuis votre espace tant que la demande est en attente.</p>
+                    </div>
+                </aside>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        var circuitsData = {
+            {% for c in circuits_catalogue %}
+                "{{ c.pk }}": {
+                    duree: {{ c.duree_jours }},
+                    tarif: {{ c.tarif_par_personne|stringformat:"f" }},
+                    min: {{ c.participants_min }},
+                    max: {{ c.participants_max }}
+                }{% if not forloop.last %},{% endif %}
+            {% endfor %}
+        };
+
+        var selectCircuit = document.getElementById("{{ form.circuit.id_for_label }}");
+        var inputNb = document.getElementById("{{ form.nombre_personnes.id_for_label }}");
+        var elDuree = document.getElementById("sumDuree");
+        var elGroupe = document.getElementById("sumGroupe");
+        var elUnitaire = document.getElementById("sumUnitaire");
+        var elTotal = document.getElementById("sumTotal");
+
+        function updateSummary() {
+            var c = circuitsData[selectCircuit.value];
+            var nb = parseInt(inputNb.value, 10) || 1;
+            if (!c) {
+                elDuree.textContent = "—";
+                elGroupe.textContent = "—";
+                elUnitaire.textContent = "—";
+                elTotal.textContent = "—";
+                return;
+            }
+            elDuree.textContent = c.duree + (c.duree > 1 ? " jours" : " jour");
+            elGroupe.textContent = c.min + " à " + c.max + " pers.";
+            elUnitaire.textContent = Math.round(c.tarif).toLocaleString("fr-FR") + " FCFA";
+            elTotal.textContent = Math.round(c.tarif * nb).toLocaleString("fr-FR") + " FCFA";
+        }
+
+        if (selectCircuit && inputNb) {
+            selectCircuit.addEventListener("change", updateSummary);
+            inputNb.addEventListener("input", updateSummary);
+            updateSummary();
+        }
+    })();
+</script>
+{% endblock %}
+

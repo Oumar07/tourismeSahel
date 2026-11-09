@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord administrateur{% endblock %}
+{% block body_class %}page-dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .kpi-card { position: relative; height: 100%; padding: 1.4rem 1.5rem; background: var(--ts-white);
+                border: 1px solid var(--ts-border); border-radius: var(--ts-radius-lg); box-shadow: var(--ts-shadow-sm); }
+    .kpi-card__icon { display: inline-grid; place-items: center; width: 44px; height: 44px; border-radius: 12px;
+                      font-size: 1.25rem; margin-bottom: .9rem; }
+    .kpi-card__value { font-family: var(--ts-font-heading); font-size: 1.85rem; font-weight: 700;
+                       color: var(--ts-green-900); line-height: 1.1; }
+    .kpi-card__label { font-size: .88rem; color: var(--ts-muted); }
+    .kpi-card__hint { font-size: .78rem; margin-top: .35rem; }
+    .kpi-card--alert { border-color: var(--ts-gold); background: var(--ts-gold-100); }
+    .icon-green { background: var(--ts-green-50); color: var(--ts-green); }
+    .icon-gold  { background: var(--ts-gold-100); color: var(--ts-gold-600); }
+    .icon-earth { background: #F6E7DA; color: var(--ts-earth); }
+    .icon-dark  { background: #E9ECEE; color: var(--ts-dark); }
+    .panel { background: var(--ts-white); border: 1px solid var(--ts-border); border-radius: var(--ts-radius-lg);
+             box-shadow: var(--ts-shadow-sm); padding: 1.5rem; height: 100%; }
+    .panel__title { font-size: 1.05rem; font-weight: 600; margin-bottom: .25rem; }
+    .chart-box { position: relative; height: 320px; }
+    .table-ts { --bs-table-bg: transparent; font-size: .9rem; }
+    .table-ts thead th { font-family: var(--ts-font-heading); font-size: .75rem; font-weight: 600; letter-spacing: .06em;
+                         text-transform: uppercase; color: var(--ts-muted); border-bottom-color: var(--ts-border); }
+    .table-ts td { vertical-align: middle; border-color: var(--ts-border); }
+    .status-pill { display: inline-block; padding: .25rem .65rem; border-radius: 50rem; font-size: .75rem; font-weight: 600; }
+    .status-en_attente { background: var(--ts-gold-100); color: var(--ts-earth-700); }
+    .status-acceptee, .status-terminee { background: var(--ts-green-50); color: var(--ts-green); }
+    .status-refusee, .status-annulee { background: #FBE9E7; color: #B23A2B; }
+</style>
+{% endblock %}
+
+{% block hero %}
+<section class="page-hero" style="min-height: 220px; padding-block: 3.5rem 2.5rem;">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+            <div>
+                <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-speedometer2"></i> Espace d'administration</span>
+                <h1 class="mb-1">Tableau de bord</h1>
+                <p class="mb-0 text-white-50">Situation au {{ aujourd_hui|date:"l j F Y" }} · connecté en tant que {{ user }}</p>
+            </div>
+            <a href="{% url 'admin:index' %}" class="btn btn-outline-light btn-sm">
+                <i class="bi bi-gear me-1"></i> Admin Django (gestion du catalogue)
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section-sm bg-sand-soft">
+    <div class="container">
+
+        {# ===== INDICATEURS CLÉS ===== #}
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <span class="kpi-card__icon icon-green"><i class="bi bi-people"></i></span>
+                    <div class="kpi-card__value">{{ stats_visiteurs.total }}</div>
+                    <div class="kpi-card__label">Visiteurs inscrits</div>
+                    <div class="kpi-card__hint text-green">+{{ stats_visiteurs.nouveaux_ce_mois }} ce mois-ci</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card {% if stats_reservations.en_attente %}kpi-card--alert{% endif %}">
+                    <span class="kpi-card__icon icon-gold"><i class="bi bi-hourglass-split"></i></span>
+                    <div class="kpi-card__value">{{ stats_reservations.en_attente }}</div>
+                    <div class="kpi-card__label">Réservations en attente</div>
+                    <div class="kpi-card__hint text-earth">
+                        {% if stats_reservations.en_attente %}À traiter ci-dessous{% else %}Aucune demande à traiter{% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <span class="kpi-card__icon icon-green"><i class="bi bi-check2-circle"></i></span>
+                    <div class="kpi-card__value">{{ stats_reservations.acceptees }}</div>
+                    <div class="kpi-card__label">Réservations acceptées</div>
+                    <div class="kpi-card__hint text-muted-ts">
+                        {{ stats_reservations.terminees }} terminée{{ stats_reservations.terminees|pluralize }} ·
+                        {{ stats_reservations.refusees }} refusée{{ stats_reservations.refusees|pluralize }}
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <span class="kpi-card__icon icon-earth"><i class="bi bi-cash-coin"></i></span>
+                    <div class="kpi-card__value">{{ stats_reservations.chiffre_affaires|default:0|floatformat:"0g" }}</div>
+                    <div class="kpi-card__label">Chiffre d'affaires confirmé (FCFA)</div>
+                    <div class="kpi-card__hint text-muted-ts">
+                        {{ stats_reservations.voyageurs_confirmes|default:0 }} voyageur{{ stats_reservations.voyageurs_confirmes|default:0|pluralize }} confirmé{{ stats_reservations.voyageurs_confirmes|default:0|pluralize }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <span class="kpi-card__icon icon-dark"><i class="bi bi-signpost-split"></i></span>
+                    <div class="kpi-card__value">{{ stats_catalogue.circuits_actifs }}</div>
+                    <div class="kpi-card__label">Circuits publiés</div>
+                    <div class="kpi-card__hint text-muted-ts">sur {{ stats_catalogue.circuits_total }} au total</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <span class="kpi-card__icon icon-green"><i class="bi bi-person-badge"></i></span>
+                    <div class="kpi-card__value">{{ stats_catalogue.guides_verifies }}</div>
+                    <div class="kpi-card__label">Guides vérifiés</div>
+                    <div class="kpi-card__hint {% if stats_catalogue.guides_en_attente %}text-earth{% else %}text-muted-ts{% endif %}">
+                        {{ stats_catalogue.guides_en_attente }} profil{{ stats_catalogue.guides_en_attente|pluralize }} à vérifier
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <span class="kpi-card__icon icon-gold"><i class="bi bi-chat-square-quote"></i></span>
+                    <div class="kpi-card__value">{{ stats_catalogue.avis_a_moderer }}</div>
+                    <div class="kpi-card__label">Avis à modérer</div>
+                    <div class="kpi-card__hint">
+                        <a href="{% url 'admin:reviews_avis_changelist' %}?statut_validation__exact=en_attente">Ouvrir la modération</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="kpi-card">
+                    <span class="kpi-card__icon icon-earth"><i class="bi bi-geo-alt"></i></span>
+                    <div class="kpi-card__value">{{ stats_catalogue.sites_actifs }}</div>
+                    <div class="kpi-card__label">Sites touristiques publiés</div>
+                    <div class="kpi-card__hint text-muted-ts">{{ stats_catalogue.destinations_actives }} destination{{ stats_catalogue.destinations_actives|pluralize }}</div>
+                </div>
+            </div>
+        </div>
+
+        {# ===== GRAPHIQUES CHART.JS ===== #}
+        <div class="row g-3 mb-4">
+            <div class="col-lg-7">
+                <div class="panel">
+                    <h2 class="panel__title">Réservations mensuelles</h2>
+                    <p class="small text-muted-ts mb-3">Demandes reçues sur les 12 derniers mois (date de la demande).</p>
+                    <div class="chart-box">
+                        <canvas id="chartReservationsMensuelles" aria-label="Graphique des réservations mensuelles" role="img"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="panel">
+                    <h2 class="panel__title">Circuits les plus demandés</h2>
+                    <p class="small text-muted-ts mb-3">Top {{ chart_circuits.labels|length|default:5 }} par nombre de demandes de réservation.</p>
+                    {% if chart_circuits.labels %}
+                        <div class="chart-box">
+                            <canvas id="chartTopCircuits" aria-label="Graphique des circuits les plus demandés" role="img"></canvas>
+                        </div>
+                    {% else %}
+                        <div class="chart-box d-grid place-items-center text-center text-muted-ts">
+                            <div>
+                                <i class="bi bi-bar-chart display-6 d-block mb-2 text-earth"></i>
+                                Aucune réservation enregistrée pour le moment.
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# ===== RÉSERVATIONS EN ATTENTE — ACCEPTER / REFUSER ===== #}
+        <div class="panel mb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                <div>
+                    <h2 class="panel__title">Réservations en attente de traitement</h2>
+                    <p class="small text-muted-ts mb-0">Classées par date de départ (les plus urgentes en premier).</p>
+                </div>
+                <a href="{% url 'admin:bookings_reservation_changelist' %}?statut__exact=en_attente" class="btn btn-sm btn-outline-primary">
+                    Voir toutes dans l'admin
+                </a>
+            </div>
+
+            {% if reservations_en_attente %}
+                <div class="table-responsive">
+                    <table class="table table-ts align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Référence</th>
+                                <th scope="col">Visiteur</th>
+                                <th scope="col">Circuit</th>
+                                <th scope="col">Départ</th>
+                                <th scope="col" class="text-center">Pers.</th>
+                                <th scope="col" class="text-end">Montant</th>
+                                <th scope="col">Guide</th>
+                                <th scope="col" class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for res in reservations_en_attente %}
+                                <tr>
+                                    <td>
+                                        <span class="fw-semibold">{{ res.reference }}</span>
+                                        <div class="small text-muted-ts">reçue le {{ res.created_at|date:"d/m/Y" }}</div>
+                                    </td>
+                                    <td>
+                                        {{ res.nom_visiteur }}
+                                        <div class="small text-muted-ts">{{ res.email_visiteur }} · {{ res.telephone_visiteur }}</div>
+                                    </td>
+                                    <td>{{ res.circuit.titre }}</td>
+                                    <td class="text-nowrap">
+                                        {{ res.date_depart|date:"d/m/Y" }}
+                                        {% if res.depart_passe %}
+                                            <div><span class="status-pill status-refusee">Date dépassée</span></div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center">{{ res.nombre_personnes }}</td>
+                                    <td class="text-end text-nowrap fw-semibold">{{ res.montant_total|floatformat:"0g" }} FCFA</td>
+                                    <td>
+                                        {% if res.guide %}{{ res.guide.nom_complet }}{% else %}<span class="text-muted-ts">Non assigné</span>{% endif %}
+                                        {% if res.alerte_guide %}
+                                            <div class="small text-danger mt-1" title="{{ res.alerte_guide }}">
+                                                <i class="bi bi-exclamation-triangle-fill"></i> Indisponible
+                                            </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-1">
+                                            <form method="post" action="{% url 'dashboard:reservation_statut' res.reference %}"
+                                                  onsubmit="return confirm('Accepter la réservation {{ res.reference }} ?');">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="accepter">
+                                                <button type="submit" class="btn btn-sm btn-primary" {% if res.alerte_guide %}disabled title="{{ res.alerte_guide }}"{% endif %}>
+                                                    <i class="bi bi-check-lg"></i> Accepter
+                                                </button>
+                                            </form>
+                                            <button type="button" class="btn btn-sm btn-outline-danger"
+                                                    data-bs-toggle="modal" data-bs-target="#modalRefus"
+                                                    data-action-url="{% url 'dashboard:reservation_statut' res.reference %}"
+                                                    data-reference="{{ res.reference }}">
+                                                <i class="bi bi-x-lg"></i> Refuser
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-4 rounded-ts bg-sand-soft text-center text-muted-ts">
+                    <i class="bi bi-check2-all fs-3 d-block mb-2 text-green"></i>
+                    Toutes les demandes ont été traitées.
+                </div>
+            {% endif %}
+        </div>
+
+        {# ===== DERNIÈRES RÉSERVATIONS TRAITÉES ===== #}
+        <div class="panel">
+            <h2 class="panel__title mb-3">Dernières réservations traitées</h2>
+            {% if reservations_recentes %}
+                <div class="table-responsive">
+                    <table class="table table-ts align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Référence</th>
+                                <th scope="col">Visiteur</th>
+                                <th scope="col">Circuit</th>
+                                <th scope="col">Départ</th>
+                                <th scope="col">Statut</th>
+                                <th scope="col">Mise à jour</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for res in reservations_recentes %}
+                                <tr>
+                                    <td class="fw-semibold">{{ res.reference }}</td>
+                                    <td>{{ res.nom_visiteur }}</td>
+                                    <td>{{ res.circuit.titre }}</td>
+                                    <td>{{ res.date_depart|date:"d/m/Y" }}</td>
+                                    <td>
+                                        <span class="status-pill status-{{ res.statut }}">{{ res.get_statut_display }}</span>
+                                        {% if res.motif_refus_ou_annulation %}
+                                            <i class="bi bi-info-circle text-muted-ts" title="{{ res.motif_refus_ou_annulation }}"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td class="small text-muted-ts">{{ res.updated_at|date:"d/m/Y H:i" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-muted-ts mb-0">Aucune réservation traitée pour le moment.</p>
+            {% endif %}
+        </div>
+
+    </div>
+</section>
+
+{# ===== MODALE DE REFUS (motif facultatif, POST + CSRF) ===== #}
+<div class="modal fade" id="modalRefus" tabindex="-1" aria-labelledby="modalRefusLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="post" action="" class="modal-content" id="formRefus">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="refuser">
+            <div class="modal-header">
+                <h2 class="modal-title h5" id="modalRefusLabel">Refuser la réservation <span id="refusReference"></span></h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+            </div>
+            <div class="modal-body">
+                <label for="motifRefus" class="form-label">Motif du refus (facultatif, visible par le visiteur)</label>
+                <textarea id="motifRefus" name="motif" rows="3" maxlength="1000" class="form-control"
+                          placeholder="Ex : circuit complet à cette date, guide indisponible…"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Annuler</button>
+                <button type="submit" class="btn btn-earth"><i class="bi bi-x-lg me-1"></i> Confirmer le refus</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# Données des graphiques sérialisées de façon sûre (échappement XSS) #}
+{{ chart_mensuel|json_script:"data-chart-mensuel" }}
+{{ chart_circuits|json_script:"data-chart-circuits" }}
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
+<script>
+    (function () {
+        "use strict";
+
+        // --- Modale de refus : injecte l'URL d'action et la référence ---
+        var modalRefus = document.getElementById("modalRefus");
+        modalRefus.addEventListener("show.bs.modal", function (event) {
+            var bouton = event.relatedTarget;
+            document.getElementById("formRefus").action = bouton.getAttribute("data-action-url");
+            document.getElementById("refusReference").textContent = bouton.getAttribute("data-reference");
+            document.getElementById("motifRefus").value = "";
+        });
+
+        if (typeof Chart === "undefined") {
+            console.warn("Chart.js n'a pas pu être chargé (CDN inaccessible).");
+            return;
+        }
+
+        // --- Charte graphique TourismeSahel (lue depuis les variables CSS) ---
+        var css = getComputedStyle(document.documentElement);
+        var couleur = function (nom) { return css.getPropertyValue(nom).trim(); };
+        var VERT = couleur("--ts-green"), VERT_CLAIR = couleur("--ts-green-light"),
+            OR = couleur("--ts-gold"), TERRE = couleur("--ts-earth"), GRIS = couleur("--ts-dark");
+
+        Chart.defaults.font.family = "Inter, system-ui, sans-serif";
+        Chart.defaults.color = couleur("--ts-muted");
+        Chart.defaults.plugins.tooltip.backgroundColor = GRIS;
+        Chart.defaults.plugins.tooltip.padding = 10;
+
+        var entiers = { beginAtZero: true, ticks: { precision: 0 } };
+
+        // --- Graphique 1 : réservations mensuelles ---
+        var mensuel = JSON.parse(document.getElementById("data-chart-mensuel").textContent);
+        new Chart(document.getElementById("chartReservationsMensuelles"), {
+            data: {
+                labels: mensuel.labels,
+                datasets: [
+                    {
+                        type: "bar",
+                        label: "Demandes reçues",
+                        data: mensuel.total,
+                        backgroundColor: OR,
+                        borderRadius: 6,
+                        maxBarThickness: 34,
+                        order: 2
+                    },
+                    {
+                        type: "line",
+                        label: "Acceptées / terminées",
+                        data: mensuel.confirmees,
+                        borderColor: VERT,
+                        backgroundColor: VERT,
+                        borderWidth: 2.5,
+                        tension: 0.35,
+                        pointRadius: 4,
+                        pointHoverRadius: 6,
+                        order: 1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: "index", intersect: false },
+                scales: { y: entiers, x: { grid: { display: false } } },
+                plugins: { legend: { position: "bottom", labels: { usePointStyle: true } } }
+            }
+        });
+
+        // --- Graphique 2 : circuits les plus demandés ---
+        var circuits = JSON.parse(document.getElementById("data-chart-circuits").textContent);
+        var canvasCircuits = document.getElementById("chartTopCircuits");
+        if (canvasCircuits && circuits.labels.length) {
+            new Chart(canvasCircuits, {
+                type: "bar",
+                data: {
+                    labels: circuits.labels,
+                    datasets: [
+                        { label: "Demandes", data: circuits.demandes, backgroundColor: VERT, borderRadius: 6, maxBarThickness: 22 },
+                        { label: "Voyageurs", data: circuits.voyageurs, backgroundColor: TERRE, borderRadius: 6, maxBarThickness: 22 }
+                    ]
+                },
+                options: {
+                    indexAxis: "y",
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: entiers,
+                        y: {
+                            grid: { display: false },
+                            ticks: {
+                                callback: function (valeur) {
+                                    var libelle = this.getLabelForValue(valeur);
+                                    return libelle.length > 26 ? libelle.slice(0, 25) + "…" : libelle;
+                                }
+                            }
+                        }
+                    },
+                    plugins: { legend: { position: "bottom", labels: { usePointStyle: true } } }
+                }
+            });
+        }
+    })();
+</script>
+{% endblock %}

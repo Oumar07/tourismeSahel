@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Mes favoris{% endblock %}
+
+{% block hero %}
+<section class="page-hero" style="min-height: 240px;">
+    <div class="container">
+        <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-heart-fill"></i> Carnet de voyage</span>
+        <h1 class="mb-1">Mes <span class="text-gold">favoris</span></h1>
+        <p class="lead mb-0">Retrouvez vos destinations et sites touristiques enregistrés.</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        {% if favoris %}
+            <div class="row g-4">
+                {% for fav in favoris %}
+                    <div class="col-md-6 col-lg-4">
+                        <div class="p-4 rounded-ts bg-white border shadow-sm h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <span class="badge-ts badge-ts--sand mb-2">{{ fav.type_cible }}</span>
+                                <h2 class="h5 mb-2">
+                                    {% if fav.destination %}
+                                        <a href="{% url 'locations:destination_detail' fav.destination.slug %}">{{ fav.destination.nom }}</a>
+                                    {% elif fav.site %}
+                                        <a href="{% url 'tourism:site_detail' fav.site.slug %}">{{ fav.site.nom }}</a>
+                                    {% elif fav.circuit %}
+                                        <a href="{% url 'circuits:circuit_detail' fav.circuit.slug %}">{{ fav.circuit.titre }}</a>
+                                    {% elif fav.guide %}
+                                        <a href="{% url 'guides:guide_detail' fav.guide.slug %}">{{ fav.guide.nom_complet }}</a>
+                                    {% else %}
+                                        {{ fav.cible }}
+                                    {% endif %}
+                                </h2>
+                                <small class="text-muted-ts d-block mb-3">Ajouté le {{ fav.created_at|date:"d/m/Y" }}</small>
+                            </div>
+
+                            {% if fav.destination %}
+                                <form method="post" action="{% url 'reviews:toggle_favorite' 'destination' fav.destination.slug %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{% url 'reviews:favorite_list' %}">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                                        <i class="bi bi-heartbreak me-1"></i> Retirer de mes favoris
+                                    </button>
+                                </form>
+                            {% elif fav.site %}
+                                <form method="post" action="{% url 'reviews:toggle_favorite' 'site' fav.site.slug %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{% url 'reviews:favorite_list' %}">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                                        <i class="bi bi-heartbreak me-1"></i> Retirer de mes favoris
+                                    </button>
+                                </form>
+                            {% elif fav.circuit %}
+                                <form method="post" action="{% url 'reviews:toggle_favorite' 'circuit' fav.circuit.slug %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{% url 'reviews:favorite_list' %}">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                                        <i class="bi bi-heartbreak me-1"></i> Retirer de mes favoris
+                                    </button>
+                                </form>
+                            {% elif fav.guide %}
+                                <form method="post" action="{% url 'reviews:toggle_favorite' 'guide' fav.guide.slug %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{% url 'reviews:favorite_list' %}">
+                                    <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                                        <i class="bi bi-heartbreak me-1"></i> Retirer de mes favoris
+                                    </button>
+                                </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-5 rounded-ts bg-sand-soft text-center border">
+                <i class="bi bi-heart display-5 text-earth d-block mb-3"></i>
+                <h2 class="h5">Vous n'avez pas encore enregistré de favoris</h2>
+                <p class="text-muted-ts mb-3">Parcourez nos destinations et nos sites pour constituer votre carnet d'inspirations.</p>
+                <a href="{% url 'locations:destination_list' %}" class="btn btn-primary btn-sm">Explorer les destinations</a>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
+

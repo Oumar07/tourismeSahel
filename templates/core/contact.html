@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}Contactez-nous{% endblock %}
+
+{% block hero %}
+<section class="page-hero" style="min-height: 260px;">
+    <div class="container">
+        <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-envelope-paper"></i> À votre écoute</span>
+        <h1 class="mb-2">Contacter <span class="text-gold">TourismeSahel</span></h1>
+        <p class="lead mb-0">
+            Une question sur un circuit, un projet sur mesure ou une candidature de guide ? Notre équipe vous répond sous 24 à 48h.
+        </p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-7">
+                <div class="p-4 p-md-5 rounded-ts bg-white border shadow-sm">
+                    <span class="eyebrow">Écrivez-nous</span>
+                    <h2 class="h4 mb-4">Envoyer un message</h2>
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.nom_complet.id_for_label }}" class="form-label">{{ form.nom_complet.label }}</label>
+                                {{ form.nom_complet }}
+                                {% for err in form.nom_complet.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                                {{ form.email }}
+                                {% for err in form.email.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.telephone.id_for_label }}" class="form-label">{{ form.telephone.label }}</label>
+                                {{ form.telephone }}
+                                {% for err in form.telephone.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.sujet.id_for_label }}" class="form-label">{{ form.sujet.label }}</label>
+                                {{ form.sujet }}
+                                {% for err in form.sujet.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                            </div>
+                            <div class="col-12">
+                                <label for="{{ form.message.id_for_label }}" class="form-label">{{ form.message.label }}</label>
+                                {{ form.message }}
+                                {% for err in form.message.errors %}<div class="text-danger small mt-1">{{ err }}</div>{% endfor %}
+                            </div>
+                            <div class="col-12 pt-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-send me-1"></i> Envoyer mon message
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="p-4 rounded-ts bg-sand-soft border mb-4">
+                    <h2 class="h5 mb-3"><i class="bi bi-geo-alt-fill text-earth me-2"></i>Nos antennes régionales</h2>
+                    <ul class="list-unstyled vstack gap-3 small mb-0">
+                        <li>
+                            <strong class="d-block text-green">Sénégal — Dakar & Saint-Louis</strong>
+                            Île Nord, Rue Blaise Dumont, Saint-Louis
+                        </li>
+                        <li>
+                            <strong class="d-block text-green">Mali — Bamako & Mopti</strong>
+                            Quartier du Fleuve, Bamako
+                        </li>
+                        <li>
+                            <strong class="d-block text-green">Niger — Niamey & Agadez</strong>
+                            Plateau, Avenue du Sahel, Niamey
+                        </li>
+                        <li>
+                            <strong class="d-block text-green">Burkina Faso — Ouagadougou & Banfora</strong>
+                            Zone du Bois, Ouagadougou
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="p-4 rounded-ts bg-white border">
+                    <h2 class="h5 mb-3"><i class="bi bi-headset text-earth me-2"></i>Coordonnées directes</h2>
+                    <p class="small mb-2"><i class="bi bi-envelope text-green me-2"></i><a href="mailto:contact@tourismesahel.com">contact@tourismesahel.com</a></p>
+                    <p class="small mb-2"><i class="bi bi-telephone text-green me-2"></i>+221 33 800 00 00</p>
+                    <p class="small text-muted-ts mb-0"><i class="bi bi-clock text-earth me-2"></i>Lundi – Samedi : 8h30 à 18h30 (GMT)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

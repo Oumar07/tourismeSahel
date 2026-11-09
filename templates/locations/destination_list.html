@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Destinations du Sahel{% endblock %}
+
+{% block hero %}
+<section class="page-hero"
+         style="--hero-img: url('{% static 'img/places/djenne_mosquee.jpg' %}');">
+    <div class="container">
+        <nav aria-label="Fil d'Ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Destinations</li>
+            </ol>
+        </nav>
+        <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-compass"></i> Référentiel géographique</span>
+        <h1 class="mb-2">Explorez nos <span class="text-gold">destinations</span></h1>
+        <p class="lead mb-0">
+            Villes historiques, oasis sahariennes, deltas et parcs naturels à travers les pays du Sahel.
+        </p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        {# Barre de filtres #}
+        <form method="get" class="bg-sand-soft p-4 rounded-ts border mb-5">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <label for="fQ" class="form-label">Recherche</label>
+                    <input type="search" id="fQ" name="q" value="{{ filtres.q }}" class="form-control"
+                           placeholder="Djenné, Saint-Louis, Agadez…">
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <label for="fPays" class="form-label">Pays</label>
+                    <select id="fPays" name="pays" class="form-select">
+                        <option value="">Tous les pays</option>
+                        {% for pays in pays_list %}
+                            <option value="{{ pays.slug }}" {% if filtres.pays == pays.slug %}selected{% endif %}>
+                                {{ pays.nom }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-6 col-md-3">
+                    <label for="fRegion" class="form-label">Région</label>
+                    <select id="fRegion" name="region" class="form-select">
+                        <option value="">Toutes les régions</option>
+                        {% for region in regions_list %}
+                            <option value="{{ region.slug }}" {% if filtres.region == region.slug %}selected{% endif %}>
+                                {{ region.nom }} ({{ region.pays.code_iso }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-sm-6 col-md-2">
+                    <label for="fTri" class="form-label">Trier par</label>
+                    <select id="fTri" name="tri" class="form-select">
+                        <option value="" {% if not filtres.tri %}selected{% endif %}>En vedette</option>
+                        <option value="populaire" {% if filtres.tri == "populaire" %}selected{% endif %}>Nombre de sites</option>
+                        <option value="recent" {% if filtres.tri == "recent" %}selected{% endif %}>Plus récentes</option>
+                    </select>
+                </div>
+                <div class="col-12 d-flex flex-wrap justify-content-between align-items-center pt-2 gap-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="fVedette" name="vedette" value="1"
+                               {% if filtres.vedette == "1" %}checked{% endif %}>
+                        <label class="form-check-label small" for="fVedette">
+                            Afficher uniquement les destinations incontournables
+                        </label>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="{% url 'locations:destination_list' %}" class="btn btn-sm btn-outline-primary">Réinitialiser</a>
+                        <button type="submit" class="btn btn-sm btn-primary">
+                            <i class="bi bi-funnel me-1"></i> Filtrer
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        {# Grille des destinations #}
+        {% if destinations %}
+            <div class="row g-4">
+                {% for destination in destinations %}
+                    <div class="col-md-6 col-lg-4">
+                        <article class="card-ts d-flex flex-column">
+                            <div class="card-ts__media">
+                                {% if destination.image_principale %}
+                                    <img src="{{ destination.image_principale.url }}" alt="{{ destination.nom }}" loading="lazy">
+                                {% endif %}
+                                <div class="card-ts__badge d-flex gap-2">
+                                    <span class="badge-ts badge-ts--green">
+                                        <i class="bi bi-geo-alt-fill"></i> {{ destination.region.pays.nom }}
+                                    </span>
+                                    {% if destination.en_vedette %}
+                                        <span class="badge-ts badge-ts--gold">
+                                            <i class="bi bi-star-fill"></i> Incontournable
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="card-ts__body d-flex flex-column flex-grow-1">
+                                <div class="card-ts__meta">
+                                    <span><i class="bi bi-map"></i> {{ destination.region.nom }}</span>
+                                    <span><i class="bi bi-bank"></i> {{ destination.nb_sites }} site{{ destination.nb_sites|pluralize }}</span>
+                                    <span><i class="bi bi-signpost-split"></i> {{ destination.nb_circuits }} circuit{{ destination.nb_circuits|pluralize }}</span>
+                                </div>
+
+                                <h2 class="card-ts__title">
+                                    <a href="{% url 'locations:destination_detail' destination.slug %}">
+                                        {{ destination.nom }}
+                                    </a>
+                                </h2>
+
+                                <p class="text-muted-ts small mb-3">
+                                    {{ destination.description_courte|truncatechars:140 }}
+                                </p>
+
+                                {% if destination.meilleure_periode %}
+                                    <div class="mt-auto pt-2 border-top small text-muted-ts">
+                                        <i class="bi bi-sun text-earth me-1"></i>
+                                        Meilleure période : <strong class="text-dark-ts">{{ destination.meilleure_periode }}</strong>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </article>
+                    </div>
+                {% endfor %}
+            </div>
+
+            {# Pagination #}
+            {% if is_paginated %}
+                <nav class="mt-5" aria-label="Pagination des destinations">
+                    <ul class="pagination justify-content-center gap-1">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link rounded-pill px-3" href="?page={{ page_obj.previous_page_number }}&q={{ filtres.q }}&pays={{ filtres.pays }}&region={{ filtres.region }}&tri={{ filtres.tri }}">
+                                    <i class="bi bi-chevron-left"></i> Précédent
+                                </a>
+                            </li>
+                        {% endif %}
+                        <li class="page-item active">
+                            <span class="page-link rounded-pill px-3">
+                                Page {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link rounded-pill px-3" href="?page={{ page_obj.next_page_number }}&q={{ filtres.q }}&pays={{ filtres.pays }}&region={{ filtres.region }}&tri={{ filtres.tri }}">
+                                    Suivant <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="p-5 rounded-ts bg-sand-soft text-center border">
+                <i class="bi bi-search display-5 text-earth d-block mb-3"></i>
+                <h2 class="h5">Aucune destination ne correspond à vos critères</h2>
+                <p class="text-muted-ts mb-3">Essayez d'élargir votre recherche ou de réinitialiser les filtres.</p>
+                <a href="{% url 'locations:destination_list' %}" class="btn btn-primary btn-sm">Voir toutes les destinations</a>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}
+

@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Mes réservations{% endblock %}
+
+{% block hero %}
+<section class="page-hero" style="min-height: 240px;">
+    <div class="container">
+        <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-calendar-check"></i> Suivi des dossiers</span>
+        <h1 class="mb-1">Mes <span class="text-gold">réservations</span></h1>
+        <p class="lead mb-0">Consultez l'état de vos demandes de circuits et téléchargez vos récapitulatifs.</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+            <form method="get" class="d-flex align-items-center gap-2">
+                <label for="fStatut" class="small fw-semibold text-nowrap">Filtrer par statut :</label>
+                <select id="fStatut" name="statut" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">Tous les statuts</option>
+                    {% for code, label in statuts_choices %}
+                        <option value="{{ code }}" {% if statut_filtre == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <a href="{% url 'bookings:create' %}" class="btn btn-gold btn-sm">
+                <i class="bi bi-plus-circle me-1"></i> Nouvelle réservation
+            </a>
+        </div>
+
+        {% if reservations %}
+            <div class="vstack gap-3">
+                {% for res in reservations %}
+                    <article class="p-4 rounded-ts bg-white border shadow-sm">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+                            <div>
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span class="badge-ts badge-ts--sand">{{ res.reference }}</span>
+                                    <span class="badge-ts {% if res.statut == 'acceptee' or res.statut == 'terminee' %}badge-ts--green{% elif res.statut == 'en_attente' %}badge-ts--gold{% else %}badge-ts--earth{% endif %}">
+                                        {{ res.get_statut_display }}
+                                    </span>
+                                </div>
+                                <h2 class="h5 mb-1">{{ res.circuit.titre }}</h2>
+                                <p class="small text-muted-ts mb-0">
+                                    Départ : <strong>{{ res.date_depart|date:"d/m/Y" }}</strong>
+                                    · {{ res.nombre_personnes }} pers.
+                                    {% if res.guide %} · Guide : {{ res.guide.nom_complet }}{% endif %}
+                                </p>
+                            </div>
+                            <div class="text-md-end">
+                                <div class="card-ts__price mb-2">{{ res.montant_total|floatformat:0 }} <small>FCFA</small></div>
+                                <div class="d-flex gap-2 justify-content-md-end">
+                                    <a href="{% url 'bookings:confirmation' res.reference %}" class="btn btn-sm btn-outline-primary">
+                                        Voir le reçu
+                                    </a>
+                                    {% if res.statut == 'en_attente' %}
+                                        <form method="post" action="{% url 'bookings:cancel' res.reference %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{% url 'bookings:list' %}">
+                                            <button type="submit" class="btn btn-sm btn-earth">Annuler</button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="p-5 rounded-ts bg-sand-soft text-center border">
+                <p class="mb-3 text-muted-ts">Aucune réservation trouvée.</p>
+                <a href="{% url 'bookings:create' %}" class="btn btn-primary btn-sm">Réserver un circuit</a>
+            </div>
+        {% endif %}
+
+    </div>
+</section>
+{% endblock %}
+

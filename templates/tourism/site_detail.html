@@ -1,0 +1,327 @@
+{% extends "base.html" %}
+
+{% block title %}{{ site.nom }} — {{ site.destination.nom }} ({{ site.destination.region.pays.nom }}){% endblock %}
+{% block meta_description %}{{ site.description_courte }}{% endblock %}
+
+{% block hero %}
+<section class="page-hero"
+         {% if site.image_principale %}style="--hero-img: url('{{ site.image_principale.url }}');"{% endif %}>
+    <div class="container">
+        <nav aria-label="Fil d'Ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'tourism:site_list' %}">Sites touristiques</a></li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'locations:destination_detail' site.destination.slug %}">
+                        {{ site.destination.nom }}
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ site.nom }}</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            {% if site.patrimoine_unesco %}
+                <span class="badge-ts badge-ts--gold">
+                    <i class="bi bi-award-fill"></i> Patrimoine mondial UNESCO
+                </span>
+            {% endif %}
+            {% if site.categorie %}
+                <span class="badge-ts badge-ts--earth">
+                    {{ site.categorie.nom }}
+                </span>
+            {% endif %}
+            <span class="badge-ts">
+                <i class="bi bi-geo-alt-fill text-earth"></i> {{ site.destination.nom }}, {{ site.destination.region.pays.nom }}
+            </span>
+        </div>
+
+        <h1 class="mb-2">{{ site.nom }}</h1>
+        <p class="lead mb-0">{{ site.description_courte }}</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row g-5">
+
+            {# Colonne principale : description, histoire, galerie, avis #}
+            <div class="col-lg-8">
+
+                {# Présentation #}
+                <div class="mb-5">
+                    <span class="eyebrow">Découverte</span>
+                    <h2 class="h3 mb-3">Présentation du site</h2>
+                    <div>
+                        {{ site.description|linebreaks }}
+                    </div>
+                </div>
+
+                {# Histoire #}
+                {% if site.histoire %}
+                    <div class="p-4 p-md-5 rounded-ts bg-sand-soft border mb-5">
+                        <span class="eyebrow">Mémoire & patrimoine</span>
+                        <h3 class="h4 mb-3"><i class="bi bi-hourglass-split text-earth me-2"></i>Histoire & origines</h3>
+                        <div class="mb-0">
+                            {{ site.histoire|linebreaks }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# Galerie photos (PhotoSite) #}
+                {% with photos=site.photos.all %}
+                    {% if photos %}
+                        <div class="mb-5">
+                            <span class="eyebrow">Portfolio</span>
+                            <h3 class="h4 mb-3">Galerie photos ({{ photos|length }})</h3>
+                            <div class="row g-3">
+                                {% for photo in photos %}
+                                    <div class="col-sm-6 col-md-4">
+                                        <figure class="m-0 overflow-hidden rounded-ts border bg-sand-soft h-100">
+                                            <img src="{{ photo.image.url }}" alt="{{ photo.legende|default:site.nom }}"
+                                                 class="w-100 object-fit-cover" style="height: 210px;" loading="lazy">
+                                            {% if photo.legende or photo.credit_photo %}
+                                                <figcaption class="p-2 small text-muted-ts">
+                                                    {{ photo.legende }}
+                                                    {% if photo.credit_photo %}
+                                                        <span class="d-block opacity-75">© {{ photo.credit_photo }}</span>
+                                                    {% endif %}
+                                                </figcaption>
+                                            {% endif %}
+                                        </figure>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {# Circuits incluant ce site #}
+                {% if circuits_associes %}
+                    <div class="mb-5">
+                        <span class="eyebrow">Visiter avec un guide</span>
+                        <h3 class="h4 mb-3">Circuits passant par {{ site.nom }}</h3>
+                        <div class="row g-4">
+                            {% for circuit in circuits_associes %}
+                                <div class="col-md-6">
+                                    <article class="card-ts">
+                                        <div class="card-ts__media">
+                                            {% if circuit.image_principale %}
+                                                <img src="{{ circuit.image_principale.url }}" alt="{{ circuit.titre }}" loading="lazy">
+                                            {% endif %}
+                                            <div class="card-ts__badge">
+                                                <span class="badge-ts badge-ts--earth">
+                                                    {{ circuit.duree_jours }} jour{{ circuit.duree_jours|pluralize }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="card-ts__body">
+                                            <h4 class="card-ts__title">
+                                                <a href="{% url 'circuits:circuit_detail' circuit.slug %}">{{ circuit.titre }}</a>
+                                            </h4>
+                                            <div class="card-ts__price">
+                                                {{ circuit.tarif_par_personne|floatformat:0 }} <small>FCFA / pers.</small>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# Avis des visiteurs #}
+                <div>
+                    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                        <div>
+                            <span class="eyebrow">Expériences vécues</span>
+                            <h3 class="h4 mb-0">
+                                Avis des visiteurs ({{ stats_avis.total }})
+                            </h3>
+                        </div>
+                        {% if stats_avis.moyenne %}
+                            <div class="badge-ts badge-ts--gold fs-6">
+                                <i class="bi bi-star-fill"></i> {{ stats_avis.moyenne|floatformat:1 }} / 5
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if avis_list %}
+                        <div class="vstack gap-3">
+                            {% for avis in avis_list %}
+                                <article class="p-4 rounded-ts bg-white border shadow-sm">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="avatar">{{ avis.auteur.first_name|default:avis.auteur.username|first|upper }}</span>
+                                            <div>
+                                                <div class="fw-semibold small">{{ avis.auteur }}</div>
+                                                <small class="text-muted-ts">{{ avis.created_at|date:"d F Y" }}</small>
+                                            </div>
+                                        </div>
+                                        <div class="rating">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= avis.note %}
+                                                    <i class="bi bi-star-fill"></i>
+                                                {% else %}
+                                                    <i class="bi bi-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                    {% if avis.titre %}
+                                        <h4 class="h6 fw-bold mt-2 mb-1">{{ avis.titre }}</h4>
+                                    {% endif %}
+                                    <p class="mb-0 text-muted-ts small">{{ avis.commentaire }}</p>
+                                </article>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-4 rounded-ts bg-sand-soft border text-muted-ts">
+                            Aucun avis n'a encore été publié pour ce site.
+                        </div>
+                    {% endif %}
+
+                    {# Formulaire de dépôt d'un avis (POST sécurisé par CSRF) #}
+                    <div class="mt-4 p-4 rounded-ts bg-sand-soft border">
+                        <h4 class="h5 mb-3"><i class="bi bi-chat-square-quote text-earth me-2"></i>Partager votre avis sur {{ site.nom }}</h4>
+                        {% if user.is_authenticated %}
+                            {% if deja_note %}
+                                <p class="mb-0 text-muted-ts small">
+                                    <i class="bi bi-check-circle-fill text-green me-1"></i>
+                                    Vous avez déjà soumis un avis pour ce site. Retrouvez son statut dans votre <a href="{% url 'accounts:dashboard' %}?tab=avis">espace visiteur</a>.
+                                </p>
+                            {% else %}
+                                <form method="post" action="{% url 'reviews:add_review' 'site' site.slug %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.path }}">
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label for="{{ avis_form.note.id_for_label }}" class="form-label">{{ avis_form.note.label }}</label>
+                                            {{ avis_form.note }}
+                                        </div>
+                                        <div class="col-md-8">
+                                            <label for="{{ avis_form.titre.id_for_label }}" class="form-label">{{ avis_form.titre.label }}</label>
+                                            {{ avis_form.titre }}
+                                        </div>
+                                        <div class="col-12">
+                                            <label for="{{ avis_form.commentaire.id_for_label }}" class="form-label">{{ avis_form.commentaire.label }}</label>
+                                            {{ avis_form.commentaire }}
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="bi bi-send me-1"></i> Publier mon avis
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            {% endif %}
+                        {% else %}
+                            <p class="mb-3 text-muted-ts small">Connectez-vous pour partager votre expérience avec la communauté.</p>
+                            <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-primary btn-sm">
+                                Se connecter pour laisser un avis
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+
+            </div>
+
+            {# Colonne latérale : informations pratiques #}
+            <div class="col-lg-4">
+                <aside class="bg-sand-soft p-4 rounded-ts border mb-4 sticky-lg-top" style="top: 96px;">
+                    <div class="d-flex justify-content-between align-items-center pb-3 mb-3 border-bottom">
+                        <span class="text-muted-ts small">Tarif d'entrée</span>
+                        <span class="card-ts__price fs-4">
+                            {% if site.est_gratuit %}
+                                Gratuit
+                            {% else %}
+                                {{ site.prix_entree|floatformat:0 }} <small>FCFA</small>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <dl class="row small mb-0 g-2">
+                        <dt class="col-5 text-muted-ts"><i class="bi bi-geo-alt text-earth me-1"></i>Destination</dt>
+                        <dd class="col-7 fw-semibold mb-2">
+                            <a href="{% url 'locations:destination_detail' site.destination.slug %}">
+                                {{ site.destination.nom }}
+                            </a>
+                        </dd>
+
+                        {% if site.categorie %}
+                            <dt class="col-5 text-muted-ts"><i class="bi bi-tag text-earth me-1"></i>Catégorie</dt>
+                            <dd class="col-7 mb-2">{{ site.categorie.nom }} ({{ site.categorie.get_famille_display }})</dd>
+                        {% endif %}
+
+                        {% if site.duree_visite_minutes %}
+                            <dt class="col-5 text-muted-ts"><i class="bi bi-stopwatch text-earth me-1"></i>Durée conseillée</dt>
+                            <dd class="col-7 mb-2">{{ site.duree_visite_minutes }} minutes</dd>
+                        {% endif %}
+
+                        {% if site.adresse %}
+                            <dt class="col-5 text-muted-ts"><i class="bi bi-signpost text-earth me-1"></i>Accès</dt>
+                            <dd class="col-7 mb-2">{{ site.adresse }}</dd>
+                        {% endif %}
+
+                        {% if site.horaires_ouverture %}
+                            <dt class="col-12 text-muted-ts mt-2"><i class="bi bi-clock text-earth me-1"></i>Horaires d'ouverture</dt>
+                            <dd class="col-12 bg-white p-2 rounded border mb-2">{{ site.horaires_ouverture|linebreaksbr }}</dd>
+                        {% endif %}
+
+                        {% if site.has_coordinates %}
+                            <dt class="col-5 text-muted-ts"><i class="bi bi-compass text-earth me-1"></i>GPS</dt>
+                            <dd class="col-7 mb-2">{{ site.latitude }}, {{ site.longitude }}</dd>
+                        {% endif %}
+                    </dl>
+
+                    {% if site.has_coordinates %}
+                        <a href="{{ site.google_maps_url }}" target="_blank" rel="noopener"
+                           class="btn btn-outline-primary w-100 mt-3">
+                            <i class="bi bi-map me-1"></i> Itinéraire Google Maps
+                        </a>
+                    {% endif %}
+
+                    {# Bouton Favori (POST sécurisé par CSRF) #}
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'reviews:toggle_favorite' 'site' site.slug %}" class="mt-2">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="btn {% if est_en_favori %}btn-earth{% else %}btn-gold{% endif %} w-100">
+                                <i class="bi {% if est_en_favori %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                                {% if est_en_favori %}Retirer de mes favoris{% else %}Ajouter à mes favoris{% endif %}
+                            </button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-gold w-100 mt-2">
+                            <i class="bi bi-heart me-1"></i> Connectez-vous pour enregistrer
+                        </a>
+                    {% endif %}
+                </aside>
+
+                {# Autres sites dans la même destination #}
+                {% if sites_proches %}
+                    <aside class="bg-white p-4 rounded-ts border">
+                        <h3 class="h6 fw-bold mb-3">À voir aussi à {{ site.destination.nom }}</h3>
+                        <div class="vstack gap-3">
+                            {% for autre in sites_proches %}
+                                <div class="d-flex justify-content-between align-items-center small">
+                                    <a href="{% url 'tourism:site_detail' autre.slug %}" class="fw-semibold">
+                                        {{ autre.nom }}
+                                    </a>
+                                    <span class="badge-ts badge-ts--sand">
+                                        {% if autre.est_gratuit %}Gratuit{% else %}{{ autre.prix_entree|floatformat:0 }} FCFA{% endif %}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </aside>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+

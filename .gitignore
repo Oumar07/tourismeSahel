@@ -1,0 +1,31 @@
+# Environnements virtuels Python
+env/
+venv/
+.venv/
+ENV/
+
+# Bytecode & caches Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Base de données locale & fichiers média générés
+# (les visuels sources sont versionnés dans static/img/places/ et chargés via `manage.py load_demo_data`)
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Variables d'environnement & secrets locaux
+.env
+.env.local
+*.log
+
+# Fichiers système & IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

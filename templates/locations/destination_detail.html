@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+
+{% block title %}{{ destination.nom }} ({{ destination.region.pays.nom }}) — Destination{% endblock %}
+{% block meta_description %}{{ destination.description_courte }}{% endblock %}
+
+{% block hero %}
+<section class="page-hero"
+         {% if destination.image_principale %}style="--hero-img: url('{{ destination.image_principale.url }}');"{% endif %}>
+    <div class="container">
+        <nav aria-label="Fil d'Ariane">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'core:home' %}">Accueil</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'locations:destination_list' %}">Destinations</a></li>
+                <li class="breadcrumb-item">
+                    <a href="{% url 'locations:destination_list' %}?pays={{ destination.region.pays.slug }}">
+                        {{ destination.region.pays.nom }}
+                    </a>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">{{ destination.nom }}</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            <span class="badge-ts badge-ts--gold">
+                <i class="bi bi-geo-alt-fill"></i> {{ destination.region.nom }}, {{ destination.region.pays.nom }}
+            </span>
+            {% if destination.en_vedette %}
+                <span class="badge-ts badge-ts--earth">
+                    <i class="bi bi-star-fill"></i> Destination incontournable
+                </span>
+            {% endif %}
+        </div>
+
+        <h1 class="mb-2">{{ destination.nom }}</h1>
+        <p class="lead mb-0">{{ destination.description_courte }}</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row g-5">
+
+            {# Colonne principale : présentation + galerie #}
+            <div class="col-lg-8">
+                <span class="eyebrow">Présentation</span>
+                <h2 class="h3 mb-3">À la découverte de {{ destination.nom }}</h2>
+                <div class="mb-5">
+                    {{ destination.description|linebreaks }}
+                </div>
+
+                {# Galerie photos de la destination #}
+                {% with photos=destination.photos.all %}
+                    {% if photos %}
+                        <div class="mb-5">
+                            <span class="eyebrow">En images</span>
+                            <h3 class="h4 mb-3">Galerie de {{ destination.nom }}</h3>
+                            <div class="row g-3">
+                                {% for photo in photos %}
+                                    <div class="col-sm-6 col-md-4">
+                                        <figure class="m-0 overflow-hidden rounded-ts border bg-sand-soft h-100">
+                                            <img src="{{ photo.image.url }}" alt="{{ photo.legende|default:destination.nom }}"
+                                                 class="w-100 object-fit-cover" style="height: 200px;" loading="lazy">
+                                            {% if photo.legende or photo.credit_photo %}
+                                                <figcaption class="p-2 small text-muted-ts">
+                                                    {{ photo.legende }}
+                                                    {% if photo.credit_photo %}
+                                                        <span class="d-block opacity-75">© {{ photo.credit_photo }}</span>
+                                                    {% endif %}
+                                                </figcaption>
+                                            {% endif %}
+                                        </figure>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {# Sites touristiques de la destination #}
+                <div class="mb-5">
+                    <div class="d-flex justify-content-between align-items-end mb-4">
+                        <div>
+                            <span class="eyebrow">À visiter sur place</span>
+                            <h3 class="h4 mb-0">Sites touristiques à {{ destination.nom }} ({{ sites|length }})</h3>
+                        </div>
+                        <a href="{% url 'tourism:site_list' %}?destination={{ destination.slug }}" class="btn btn-sm btn-outline-primary">
+                            Filtrer dans le catalogue
+                        </a>
+                    </div>
+
+                    {% if sites %}
+                        <div class="row g-4">
+                            {% for site in sites %}
+                                <div class="col-md-6">
+                                    <article class="card-ts">
+                                        <div class="card-ts__media">
+                                            {% if site.image_principale %}
+                                                <img src="{{ site.image_principale.url }}" alt="{{ site.nom }}" loading="lazy">
+                                            {% endif %}
+                                            <div class="card-ts__badge d-flex gap-1">
+                                                {% if site.patrimoine_unesco %}
+                                                    <span class="badge-ts badge-ts--gold"><i class="bi bi-award-fill"></i> UNESCO</span>
+                                                {% endif %}
+                                                {% if site.categorie %}
+                                                    <span class="badge-ts badge-ts--sand">{{ site.categorie.nom }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                        <div class="card-ts__body">
+                                            <h4 class="card-ts__title">
+                                                <a href="{% url 'tourism:site_detail' site.slug %}">{{ site.nom }}</a>
+                                            </h4>
+                                            <p class="text-muted-ts small mb-3">{{ site.description_courte|truncatechars:110 }}</p>
+                                            <div class="d-flex justify-content-between align-items-center small pt-2 border-top">
+                                                <span class="fw-bold text-green">
+                                                    {% if site.est_gratuit %}Accès libre{% else %}{{ site.prix_entree|floatformat:0 }} FCFA{% endif %}
+                                                </span>
+                                                {% if site.note_moyenne %}
+                                                    <span class="rating"><i class="bi bi-star-fill"></i> {{ site.note_moyenne|floatformat:1 }}</span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-4 rounded-ts bg-sand-soft border text-muted-ts">
+                            Aucun site touristique n'est encore rattaché à cette destination.
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# Circuits au départ de cette destination #}
+                {% if circuits %}
+                    <div>
+                        <span class="eyebrow">Partir en expédition</span>
+                        <h3 class="h4 mb-3">Circuits au départ de {{ destination.nom }}</h3>
+                        <div class="row g-4">
+                            {% for circuit in circuits %}
+                                <div class="col-md-6">
+                                    <article class="card-ts">
+                                        <div class="card-ts__media">
+                                            {% if circuit.image_principale %}
+                                                <img src="{{ circuit.image_principale.url }}" alt="{{ circuit.titre }}" loading="lazy">
+                                            {% endif %}
+                                            <div class="card-ts__badge">
+                                                <span class="badge-ts badge-ts--earth">
+                                                    <i class="bi bi-clock"></i> {{ circuit.duree_jours }} jour{{ circuit.duree_jours|pluralize }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div class="card-ts__body">
+                                            <h4 class="card-ts__title">
+                                                <a href="{% url 'circuits:circuit_detail' circuit.slug %}">{{ circuit.titre }}</a>
+                                            </h4>
+                                            <p class="text-muted-ts small mb-2">{{ circuit.description_courte|truncatechars:100 }}</p>
+                                            <div class="card-ts__price">
+                                                {{ circuit.tarif_par_personne|floatformat:0 }} <small>FCFA / pers.</small>
+                                            </div>
+                                        </div>
+                                    </article>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            {# Barre latérale : repères pratiques & guides #}
+            <div class="col-lg-4">
+                <aside class="bg-sand-soft p-4 rounded-ts border mb-4">
+                    <h3 class="h5 mb-3"><i class="bi bi-info-circle text-earth me-2"></i>Repères pratiques</h3>
+                    <dl class="row mb-0 small g-2">
+                        <dt class="col-5 text-muted-ts">Pays</dt>
+                        <dd class="col-7 fw-semibold mb-2">{{ destination.region.pays.nom }} ({{ destination.region.pays.code_iso }})</dd>
+
+                        <dt class="col-5 text-muted-ts">Région</dt>
+                        <dd class="col-7 fw-semibold mb-2">{{ destination.region.nom }}</dd>
+
+                        {% if destination.region.pays.capitale %}
+                            <dt class="col-5 text-muted-ts">Capitale</dt>
+                            <dd class="col-7 mb-2">{{ destination.region.pays.capitale }}</dd>
+                        {% endif %}
+
+                        {% if destination.region.pays.devise %}
+                            <dt class="col-5 text-muted-ts">Devise</dt>
+                            <dd class="col-7 mb-2">{{ destination.region.pays.devise }}</dd>
+                        {% endif %}
+
+                        {% if destination.meilleure_periode %}
+                            <dt class="col-5 text-muted-ts">Meilleure saison</dt>
+                            <dd class="col-7 fw-semibold text-green mb-2">{{ destination.meilleure_periode }}</dd>
+                        {% endif %}
+
+                        {% if destination.has_coordinates %}
+                            <dt class="col-5 text-muted-ts">Coordonnées GPS</dt>
+                            <dd class="col-7 mb-0">
+                                {{ destination.latitude }}, {{ destination.longitude }}
+                                <div class="mt-2">
+                                    <a href="{{ destination.google_maps_url }}" target="_blank" rel="noopener"
+                                       class="btn btn-sm btn-outline-primary w-100">
+                                        <i class="bi bi-map me-1"></i> Ouvrir dans Google Maps
+                                    </a>
+                                </div>
+                            </dd>
+                        {% endif %}
+                    </dl>
+
+                    {# Bouton Favori (POST sécurisé par CSRF) #}
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'reviews:toggle_favorite' 'destination' destination.slug %}" class="mt-3 pt-3 border-top">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <button type="submit" class="btn {% if est_en_favori %}btn-earth{% else %}btn-gold{% endif %} w-100">
+                                <i class="bi {% if est_en_favori %}bi-heart-fill{% else %}bi-heart{% endif %} me-1"></i>
+                                {% if est_en_favori %}Retirer de mes favoris{% else %}Enregistrer cette destination{% endif %}
+                            </button>
+                        </form>
+                    {% endif %}
+                </aside>
+
+                {% if guides_locaux %}
+                    <aside class="bg-white p-4 rounded-ts border shadow-sm">
+                        <h3 class="h5 mb-3"><i class="bi bi-person-badge text-earth me-2"></i>Guides dans la région</h3>
+                        <div class="vstack gap-3">
+                            {% for guide in guides_locaux %}
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="avatar">{{ guide.nom_complet|first|upper }}</span>
+                                    <div>
+                                        <div class="fw-semibold small">
+                                            <a href="{% url 'guides:guide_detail' guide.slug %}">{{ guide.nom_complet }}</a>
+                                            <i class="bi bi-patch-check-fill text-gold"></i>
+                                        </div>
+                                        <small class="text-muted-ts">{{ guide.annees_experience }} ans d'expérience</small>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </aside>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+

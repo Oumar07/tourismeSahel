@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Devenir guide certifié TourismeSahel{% endblock %}
+
+{% block hero %}
+<section class="page-hero" style="min-height: 260px;">
+    <div class="container">
+        <span class="badge-ts badge-ts--gold mb-2"><i class="bi bi-person-badge"></i> Réseau professionnel</span>
+        <h1 class="mb-2">Rejoindre nos guides <span class="text-gold">certifiés</span></h1>
+        <p class="lead mb-0">Faites rayonner votre région auprès de voyageurs respectueux du patrimoine sahélien.</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="p-4 rounded-ts bg-sand-soft border h-100">
+                    <span class="badge-ts badge-ts--green mb-3">Étape 1</span>
+                    <h2 class="h5">Créez votre compte</h2>
+                    <p class="small text-muted-ts mb-0">Inscrivez-vous gratuitement sur la plateforme et préparez vos informations professionnelles (langues, régions, biographie).</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 rounded-ts bg-sand-soft border h-100">
+                    <span class="badge-ts badge-ts--gold mb-3">Étape 2</span>
+                    <h2 class="h5">Vérification de licence</h2>
+                    <p class="small text-muted-ts mb-0">Transmettez votre numéro de carte professionnelle de guide national ou régional à notre équipe de modération.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 rounded-ts bg-sand-soft border h-100">
+                    <span class="badge-ts badge-ts--earth mb-3">Étape 3</span>
+                    <h2 class="h5">Publication & réservations</h2>
+                    <p class="small text-muted-ts mb-0">Une fois vérifié, votre profil et vos circuits apparaissent dans le catalogue avec le badge officiel « Guide vérifié ».</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-5 rounded-ts bg-white border shadow-sm text-center">
+            <h2 class="h4 mb-3">Vous êtes guide touristique diplômé au Sahel ?</h2>
+            <p class="text-muted-ts mb-4">Envoyez-nous votre candidature via le formulaire de contact en sélectionnant « Partenariat / Devenir guide certifié ».</p>
+            <a href="{% url 'core:contact' %}?sujet=partenariat" class="btn btn-primary btn-lg">
+                <i class="bi bi-send me-1"></i> Déposer ma candidature
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+

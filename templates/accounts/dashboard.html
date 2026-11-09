@@ -1,0 +1,349 @@
+{% extends "base.html" %}
+
+{% block title %}Mon espace visiteur{% endblock %}
+
+{% block hero %}
+<section class="page-hero" style="min-height: 260px;">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-3">
+            <div class="d-flex align-items-center gap-3">
+                {% if user.avatar %}
+                    <img src="{{ user.avatar.url }}" alt="{{ user }}"
+                         class="rounded-circle object-fit-cover border border-3 border-warning"
+                         style="width:72px;height:72px;">
+                {% else %}
+                    <span class="avatar" style="width:72px;height:72px;font-size:1.75rem;background:var(--ts-gold);color:var(--ts-green-900);">
+                        {{ user.first_name|default:user.username|first|upper }}
+                    </span>
+                {% endif %}
+                <div>
+                    <span class="badge-ts badge-ts--gold mb-2">
+                        <i class="bi bi-person-check-fill"></i> {{ user.get_role_display }}
+                    </span>
+                    <h1 class="h2 mb-1">Bonjour, {{ user.first_name|default:user.username }}</h1>
+                    <p class="mb-0 text-white-50 small">
+                        {{ user.email }}
+                        {% if user.pays_origine %} · {{ user.pays_origine.nom }}{% endif %}
+                    </p>
+                </div>
+            </div>
+            <a href="{% url 'bookings:create' %}" class="btn btn-gold">
+                <i class="bi bi-calendar-plus me-1"></i> Nouvelle réservation
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+
+        {# Indicateurs synthétiques #}
+        <div class="row g-3 mb-5">
+            <div class="col-6 col-lg-3">
+                <div class="p-4 rounded-ts bg-sand-soft border h-100">
+                    <div class="h3 fw-bold text-green mb-1">{{ stats.nb_reservations }}</div>
+                    <div class="small text-muted-ts"><i class="bi bi-calendar-check text-earth me-1"></i>Réservations totales</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="p-4 rounded-ts bg-sand-soft border h-100">
+                    <div class="h3 fw-bold text-green mb-1">{{ stats.nb_a_venir }}</div>
+                    <div class="small text-muted-ts"><i class="bi bi-compass text-earth me-1"></i>Départs à venir</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="p-4 rounded-ts bg-sand-soft border h-100">
+                    <div class="h3 fw-bold text-green mb-1">{{ stats.nb_favoris }}</div>
+                    <div class="small text-muted-ts"><i class="bi bi-heart text-earth me-1"></i>Favoris enregistrés</div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="p-4 rounded-ts bg-sand-soft border h-100">
+                    <div class="h3 fw-bold text-green mb-1">{{ stats.nb_avis }}</div>
+                    <div class="small text-muted-ts"><i class="bi bi-star text-earth me-1"></i>Avis partagés</div>
+                </div>
+            </div>
+        </div>
+
+        {# Navigation par onglets #}
+        <ul class="nav nav-pills gap-2 mb-4 pb-2 border-bottom" id="dashboardTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="btn {% if active_tab == 'reservations' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm"
+                        id="tab-res-btn" data-bs-toggle="pill" data-bs-target="#pane-reservations"
+                        type="button" role="tab" aria-selected="{% if active_tab == 'reservations' %}true{% else %}false{% endif %}">
+                    <i class="bi bi-calendar-check me-1"></i> Mes réservations ({{ stats.nb_reservations }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="btn {% if active_tab == 'favoris' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm"
+                        id="tab-fav-btn" data-bs-toggle="pill" data-bs-target="#pane-favoris"
+                        type="button" role="tab" aria-selected="{% if active_tab == 'favoris' %}true{% else %}false{% endif %}">
+                    <i class="bi bi-heart me-1"></i> Mes favoris ({{ stats.nb_favoris }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="btn {% if active_tab == 'avis' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm"
+                        id="tab-avis-btn" data-bs-toggle="pill" data-bs-target="#pane-avis"
+                        type="button" role="tab" aria-selected="{% if active_tab == 'avis' %}true{% else %}false{% endif %}">
+                    <i class="bi bi-chat-square-quote me-1"></i> Mes avis ({{ stats.nb_avis }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="btn {% if active_tab == 'profil' %}btn-primary{% else %}btn-outline-primary{% endif %} btn-sm"
+                        id="tab-profil-btn" data-bs-toggle="pill" data-bs-target="#pane-profil"
+                        type="button" role="tab" aria-selected="{% if active_tab == 'profil' %}true{% else %}false{% endif %}">
+                    <i class="bi bi-person-gear me-1"></i> Modifier mon profil
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content">
+
+            {# ===== ONGLET 1 : MES RÉSERVATIONS ===== #}
+            <div class="tab-pane fade {% if active_tab == 'reservations' %}show active{% endif %}"
+                 id="pane-reservations" role="tabpanel">
+                {% if reservations %}
+                    <div class="vstack gap-3">
+                        {% for res in reservations %}
+                            <div class="p-4 rounded-ts bg-white border shadow-sm">
+                                <div class="d-flex flex-wrap justify-content-between align-items-start gap-3">
+                                    <div>
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                            <span class="badge-ts badge-ts--sand">{{ res.reference }}</span>
+                                            {% if res.statut == 'acceptee' %}
+                                                <span class="badge-ts badge-ts--green"><i class="bi bi-check-circle-fill"></i> Acceptée</span>
+                                            {% elif res.statut == 'en_attente' %}
+                                                <span class="badge-ts badge-ts--gold"><i class="bi bi-hourglass-split"></i> En attente</span>
+                                            {% elif res.statut == 'terminee' %}
+                                                <span class="badge-ts badge-ts--green"><i class="bi bi-flag-fill"></i> Terminée</span>
+                                            {% else %}
+                                                <span class="badge-ts badge-ts--earth"><i class="bi bi-x-circle-fill"></i> {{ res.get_statut_display }}</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <h2 class="h5 mb-1">{{ res.circuit.titre }}</h2>
+                                        <p class="small text-muted-ts mb-2">
+                                            <i class="bi bi-calendar3 text-earth"></i>
+                                            Départ le <strong>{{ res.date_depart|date:"d/m/Y" }}</strong>
+                                            {% if res.date_fin %}(jusqu'au {{ res.date_fin|date:"d/m/Y" }}){% endif %}
+                                            · {{ res.nombre_personnes }} voyageur{{ res.nombre_personnes|pluralize }}
+                                            {% if res.guide %} · Guide : {{ res.guide.nom_complet }}{% endif %}
+                                        </p>
+                                    </div>
+
+                                    <div class="text-md-end">
+                                        <div class="card-ts__price mb-2">
+                                            {{ res.montant_total|floatformat:0 }} <small>FCFA</small>
+                                        </div>
+                                        <div class="d-flex flex-wrap gap-2 justify-content-md-end">
+                                            <a href="{% url 'bookings:confirmation' res.reference %}" class="btn btn-sm btn-outline-primary">
+                                                Détails & reçu
+                                            </a>
+                                            {% if res.statut == 'en_attente' %}
+                                                <form method="post" action="{% url 'bookings:cancel' res.reference %}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="next" value="{% url 'accounts:dashboard' %}">
+                                                    <button type="submit" class="btn btn-sm btn-earth">
+                                                        Annuler
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-5 rounded-ts bg-sand-soft text-center border">
+                        <i class="bi bi-calendar-x display-5 text-earth d-block mb-3"></i>
+                        <h2 class="h5">Vous n'avez aucune réservation pour le moment</h2>
+                        <p class="text-muted-ts mb-3">Découvrez nos circuits accompagnés et réservez votre prochaine aventure au Sahel.</p>
+                        <a href="{% url 'bookings:create' %}" class="btn btn-primary btn-sm">Faire une demande de réservation</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            {# ===== ONGLET 2 : MES FAVORIS ===== #}
+            <div class="tab-pane fade {% if active_tab == 'favoris' %}show active{% endif %}"
+                 id="pane-favoris" role="tabpanel">
+                {% if favoris %}
+                    <div class="row g-4">
+                        {% for fav in favoris %}
+                            <div class="col-md-6 col-lg-4">
+                                <div class="p-4 rounded-ts bg-white border shadow-sm h-100 d-flex flex-column justify-content-between">
+                                    <div>
+                                        <span class="badge-ts badge-ts--sand mb-2">{{ fav.type_cible }}</span>
+                                        <h3 class="h5 mb-2">
+                                            {% if fav.destination %}
+                                                <a href="{% url 'locations:destination_detail' fav.destination.slug %}">{{ fav.destination.nom }}</a>
+                                            {% elif fav.site %}
+                                                <a href="{% url 'tourism:site_detail' fav.site.slug %}">{{ fav.site.nom }}</a>
+                                            {% elif fav.circuit %}
+                                                <a href="{% url 'circuits:circuit_detail' fav.circuit.slug %}">{{ fav.circuit.titre }}</a>
+                                            {% elif fav.guide %}
+                                                <a href="{% url 'guides:guide_detail' fav.guide.slug %}">{{ fav.guide.nom_complet }}</a>
+                                            {% else %}
+                                                {{ fav.cible }}
+                                            {% endif %}
+                                        </h3>
+                                        <small class="text-muted-ts d-block mb-3">
+                                            Enregistré le {{ fav.created_at|date:"d/m/Y" }}
+                                        </small>
+                                    </div>
+
+                                    {% if fav.destination %}
+                                        <form method="post" action="{% url 'reviews:toggle_favorite' 'destination' fav.destination.slug %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{% url 'accounts:dashboard' %}?tab=favoris">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                                                <i class="bi bi-trash me-1"></i> Retirer
+                                            </button>
+                                        </form>
+                                    {% elif fav.site %}
+                                        <form method="post" action="{% url 'reviews:toggle_favorite' 'site' fav.site.slug %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{% url 'accounts:dashboard' %}?tab=favoris">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                                                <i class="bi bi-trash me-1"></i> Retirer
+                                            </button>
+                                        </form>
+                                    {% elif fav.circuit %}
+                                        <form method="post" action="{% url 'reviews:toggle_favorite' 'circuit' fav.circuit.slug %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{% url 'accounts:dashboard' %}?tab=favoris">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                                                <i class="bi bi-trash me-1"></i> Retirer
+                                            </button>
+                                        </form>
+                                    {% elif fav.guide %}
+                                        <form method="post" action="{% url 'reviews:toggle_favorite' 'guide' fav.guide.slug %}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{% url 'accounts:dashboard' %}?tab=favoris">
+                                            <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                                                <i class="bi bi-trash me-1"></i> Retirer
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-5 rounded-ts bg-sand-soft text-center border">
+                        <i class="bi bi-heart display-5 text-earth d-block mb-3"></i>
+                        <h2 class="h5">Votre liste de favoris est vide</h2>
+                        <p class="text-muted-ts mb-3">Enregistrez vos sites et destinations préférés pour préparer votre voyage.</p>
+                        <a href="{% url 'tourism:site_list' %}" class="btn btn-primary btn-sm">Explorer les sites</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            {# ===== ONGLET 3 : MES AVIS ===== #}
+            <div class="tab-pane fade {% if active_tab == 'avis' %}show active{% endif %}"
+                 id="pane-avis" role="tabpanel">
+                {% if avis_list %}
+                    <div class="vstack gap-3">
+                        {% for avis in avis_list %}
+                            <div class="p-4 rounded-ts bg-white border shadow-sm">
+                                <div class="d-flex flex-wrap justify-content-between align-items-center mb-2 gap-2">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge-ts badge-ts--sand">{{ avis.type_cible }} : {{ avis.cible }}</span>
+                                        <span class="rating">
+                                            {% for i in "12345" %}
+                                                {% if forloop.counter <= avis.note %}
+                                                    <i class="bi bi-star-fill"></i>
+                                                {% else %}
+                                                    <i class="bi bi-star"></i>
+                                                {% endif %}
+                                            {% endfor %}
+                                        </span>
+                                    </div>
+                                    {% if avis.statut_validation == 'valide' %}
+                                        <span class="badge-ts badge-ts--green">Publié</span>
+                                    {% elif avis.statut_validation == 'en_attente' %}
+                                        <span class="badge-ts badge-ts--gold">En attente de modération</span>
+                                    {% else %}
+                                        <span class="badge-ts badge-ts--earth">Refusé</span>
+                                    {% endif %}
+                                </div>
+                                {% if avis.titre %}
+                                    <h3 class="h6 fw-bold mb-1">{{ avis.titre }}</h3>
+                                {% endif %}
+                                <p class="small text-muted-ts mb-0">{{ avis.commentaire }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-5 rounded-ts bg-sand-soft text-center border">
+                        <p class="mb-0 text-muted-ts">Vous n'avez pas encore publié d'avis.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            {# ===== ONGLET 4 : MODIFIER MON PROFIL ===== #}
+            <div class="tab-pane fade {% if active_tab == 'profil' %}show active{% endif %}"
+                 id="pane-profil" role="tabpanel">
+                <div class="bg-white p-4 p-md-5 rounded-ts border shadow-sm">
+                    <h2 class="h4 mb-3">Informations personnelles</h2>
+                    <form method="post" action="{% url 'accounts:dashboard' %}?tab=profil" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ profil_form.first_name.id_for_label }}" class="form-label">{{ profil_form.first_name.label }}</label>
+                                {{ profil_form.first_name }}
+                                {% for err in profil_form.first_name.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ profil_form.last_name.id_for_label }}" class="form-label">{{ profil_form.last_name.label }}</label>
+                                {{ profil_form.last_name }}
+                                {% for err in profil_form.last_name.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ profil_form.email.id_for_label }}" class="form-label">{{ profil_form.email.label }}</label>
+                                {{ profil_form.email }}
+                                {% for err in profil_form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ profil_form.telephone.id_for_label }}" class="form-label">{{ profil_form.telephone.label }}</label>
+                                {{ profil_form.telephone }}
+                                {% for err in profil_form.telephone.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ profil_form.pays_origine.id_for_label }}" class="form-label">{{ profil_form.pays_origine.label }}</label>
+                                {{ profil_form.pays_origine }}
+                                {% for err in profil_form.pays_origine.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ profil_form.avatar.id_for_label }}" class="form-label">{{ profil_form.avatar.label }}</label>
+                                {{ profil_form.avatar }}
+                                {% for err in profil_form.avatar.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary mt-4">
+                            <i class="bi bi-check2-circle me-1"></i> Enregistrer les modifications
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}
+

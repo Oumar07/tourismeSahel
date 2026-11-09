@@ -1,0 +1,369 @@
+{% load static %}<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#14532D">
+    <meta name="description" content="{% block meta_description %}TourismeSahel — Découvrez les trésors du Sahel : destinations, sites patrimoniaux, circuits authentiques et guides locaux certifiés.{% endblock %}">
+
+    <title>{% block title %}Accueil{% endblock %} | TourismeSahel</title>
+
+    {# Open Graph (partage réseaux sociaux) #}
+    <meta property="og:site_name" content="TourismeSahel">
+    <meta property="og:title" content="{% block og_title %}TourismeSahel — Voyagez au cœur du Sahel{% endblock %}">
+    <meta property="og:type" content="website">
+
+    {# Favicon : soleil doré (SVG inline, aucune dépendance fichier) #}
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2314532D'/%3E%3Ccircle cx='32' cy='28' r='14' fill='%23D6A84B'/%3E%3Cpath d='M18 52V38h4v-6l2-4 2 4v6h3v-10l3-6 3 6v10h3v-6l2-4 2 4v6h4v14z' fill='%23A85C20'/%3E%3C/svg%3E">
+
+    {# Polices : Poppins (titres) + Inter (texte) #}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    {# Bootstrap 5.3 + Bootstrap Icons #}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    {# Charte graphique TourismeSahel (toujours après Bootstrap) #}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+    {% comment %}
+       ================================================================
+       SPRITE SVG — Logo (monument en terre, baobab, soleil doré)
+       Défini une seule fois, réutilisé via <use href="#ts-logo">.
+       Les couleurs passent par des variables CSS (--logo-*) pour
+       permettre une variante claire dans le footer.
+       ================================================================
+    {% endcomment %}
+    <svg xmlns="http://www.w3.org/2000/svg" class="d-none" aria-hidden="true">
+        <symbol id="ts-logo" viewBox="0 0 64 64">
+            {# Soleil doré + rayons #}
+            <g style="fill: var(--logo-sun, #D6A84B)">
+                <circle cx="32" cy="25" r="15"/>
+                <rect x="31" y="2" width="2" height="5" rx="1"/>
+                <rect x="31" y="2" width="2" height="5" rx="1" transform="rotate(-45 32 25)"/>
+                <rect x="31" y="2" width="2" height="5" rx="1" transform="rotate(45 32 25)"/>
+                <rect x="31" y="2" width="2" height="5" rx="1" transform="rotate(-90 32 25)"/>
+                <rect x="31" y="2" width="2" height="5" rx="1" transform="rotate(90 32 25)"/>
+            </g>
+            {# Monument en terre (architecture soudano-sahélienne) #}
+            <g style="fill: var(--logo-earth, #A85C20)">
+                <path d="M29 54V24.5Q32 17 35 24.5V54z"/>
+                <path d="M19 54V32.5Q21.5 27 24 32.5V54z"/>
+                <path d="M40 54V32.5Q42.5 27 45 32.5V54z"/>
+                <rect x="19" y="40" width="26" height="14"/>
+            </g>
+            {# Torons (pièces de bois saillantes) #}
+            <g style="stroke: var(--logo-detail, #5C3210)" stroke-width="1.4" stroke-linecap="round">
+                <line x1="27.5" y1="30" x2="36.5" y2="30"/>
+                <line x1="27.5" y1="35" x2="36.5" y2="35"/>
+                <line x1="17.5" y1="37" x2="25.5" y2="37"/>
+                <line x1="38.5" y1="37" x2="46.5" y2="37"/>
+            </g>
+            {# Porte en arc #}
+            <path d="M30 54v-5q2-3.5 4 0v5z" style="fill: var(--logo-door, #F5EBD7)"/>
+            {# Baobab #}
+            <g style="fill: var(--logo-tree, #14532D)">
+                <path d="M50.5 54c1.2-4.5 1.2-9.5.3-14h4.4c-.9 4.5-.9 9.5.3 14z"/>
+                <path d="M51 40.5l-3.5-3.5M55 40.5l3.5-3.5M53 40v-4" style="stroke: var(--logo-tree, #14532D)" stroke-width="1.3" stroke-linecap="round" fill="none"/>
+                <circle cx="47" cy="36" r="2.6"/>
+                <circle cx="53" cy="34.5" r="3"/>
+                <circle cx="59" cy="36" r="2.6"/>
+            </g>
+            {# Ligne de sol #}
+            <rect x="4" y="54" width="56" height="2.5" rx="1.25" style="fill: var(--logo-ground, #65A30D)"/>
+        </symbol>
+    </svg>
+
+    {# Lien d'accessibilité : aller au contenu #}
+    <a class="skip-link" href="#main-content">Aller au contenu principal</a>
+
+    {# Bandeau décoratif à motif sahélien #}
+    <div class="sahel-band" aria-hidden="true"></div>
+
+    {% comment %}
+       ================================================================
+       NAVBAR
+       NB : les liens utilisent des chemins en dur tant que les apps
+       n'existent pas. Ils seront remplacés par la balise url de Django
+       lors de la création des vues.
+       ================================================================
+    {% endcomment %}
+    <header class="site-header sticky-top" id="siteHeader">
+        <nav class="navbar navbar-expand-xl" aria-label="Navigation principale">
+            <div class="container">
+
+                <a class="navbar-brand brand" href="{% url 'core:home' %}">
+                    <svg class="brand-logo" role="img" aria-label="Logo TourismeSahel"><use href="#ts-logo"/></svg>
+                    <span class="brand-name">Tourisme<span>Sahel</span></span>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#mainNav"
+                        aria-controls="mainNav" aria-label="Ouvrir le menu">
+                    <i class="bi bi-list"></i>
+                </button>
+
+                <div class="offcanvas offcanvas-end" tabindex="-1" id="mainNav" aria-labelledby="mainNavLabel">
+                    <div class="offcanvas-header">
+                        <a class="brand" href="{% url 'core:home' %}" id="mainNavLabel">
+                            <svg class="brand-logo" aria-hidden="true"><use href="#ts-logo"/></svg>
+                            <span class="brand-name">Tourisme<span>Sahel</span></span>
+                        </a>
+                        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fermer le menu"></button>
+                    </div>
+
+                    <div class="offcanvas-body align-items-xl-center">
+                        {% with path=request.path %}
+                        <ul class="navbar-nav mx-xl-auto gap-xl-1">
+                            <li class="nav-item">
+                                <a class="nav-link {% if path == '/' %}active{% endif %}" href="{% url 'core:home' %}" {% if path == '/' %}aria-current="page"{% endif %}>Accueil</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if '/destinations/' in path %}active{% endif %}" href="{% url 'locations:destination_list' %}">Destinations</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if '/sites/' in path %}active{% endif %}" href="{% url 'tourism:site_list' %}">Sites touristiques</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if '/circuits/' in path %}active{% endif %}" href="{% url 'circuits:circuit_list' %}">Circuits</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if '/guides/' in path %}active{% endif %}" href="{% url 'guides:guide_list' %}">Guides</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if '/a-propos/' in path %}active{% endif %}" href="{% url 'core:about' %}">À propos</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {% if '/contact/' in path %}active{% endif %}" href="{% url 'core:contact' %}">Contact</a>
+                            </li>
+                        </ul>
+                        {% endwith %}
+
+                        <div class="nav-actions">
+                            <button class="btn btn-icon" type="button" data-bs-toggle="collapse" data-bs-target="#navSearch"
+                                    aria-expanded="false" aria-controls="navSearch" aria-label="Rechercher">
+                                <i class="bi bi-search"></i>
+                            </button>
+
+                            {% if user.is_authenticated %}
+                                <a class="btn btn-icon position-relative" href="{% url 'reviews:favorite_list' %}" aria-label="Mes favoris">
+                                    <i class="bi bi-heart"></i>
+                                </a>
+                                <div class="dropdown">
+                                    <button class="btn btn-user dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <span class="avatar">{{ user.first_name|default:user.username|first|upper }}</span>
+                                        <span class="d-lg-none d-xl-inline">{{ user.first_name|default:user.username }}</span>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" href="{% url 'accounts:dashboard' %}"><i class="bi bi-speedometer2"></i> Mon espace visiteur</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'bookings:list' %}"><i class="bi bi-calendar-check"></i> Mes réservations</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'reviews:favorite_list' %}"><i class="bi bi-heart"></i> Mes favoris</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'accounts:dashboard' %}?tab=profil"><i class="bi bi-person"></i> Modifier mon profil</a></li>
+                                        {% if user.is_staff %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item" href="{% url 'dashboard:index' %}"><i class="bi bi-bar-chart-line"></i> Dashboard Administrateur</a></li>
+                                            <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-shield-lock"></i> Admin Django</a></li>
+                                        {% endif %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            {# Depuis Django 5, la déconnexion doit se faire en POST #}
+                                            <form method="post" action="{% url 'accounts:logout' %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="dropdown-item text-danger"><i class="bi bi-box-arrow-right"></i> Déconnexion</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
+                            {% else %}
+                                <a class="btn btn-link nav-login" href="{% url 'accounts:login' %}">Connexion</a>
+                                <a class="btn btn-gold" href="{% url 'accounts:register' %}">S'inscrire</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        {# Barre de recherche dépliable #}
+        <div class="collapse nav-search" id="navSearch">
+            <div class="container py-3">
+                <form action="{% url 'tourism:site_list' %}" method="get" role="search" class="search-form">
+                    <i class="bi bi-search"></i>
+                    <input type="search" name="q" class="form-control" placeholder="Une destination, un site, un monument…"
+                           aria-label="Rechercher sur TourismeSahel" value="{{ request.GET.q|default:'' }}">
+                    <button class="btn btn-primary" type="submit">Rechercher</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    {# ========== MESSAGES (framework django.contrib.messages) ========== #}
+    {% if messages %}
+        <div class="toast-container position-fixed top-0 end-0 p-3 mt-5" aria-live="polite" aria-atomic="true">
+            {% for message in messages %}
+                <div class="toast ts-toast ts-toast--{{ message.tags|default:'info' }}" role="alert" data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            {% if message.tags == 'success' %}<i class="bi bi-check-circle-fill"></i>
+                            {% elif message.tags == 'error' %}<i class="bi bi-x-circle-fill"></i>
+                            {% elif message.tags == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>
+                            {% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Fermer"></button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {# ========== CONTENU ========== #}
+    {% block hero %}{% endblock %}
+
+    <main id="main-content" class="site-main" tabindex="-1">
+        {% block content %}{% endblock %}
+    </main>
+
+    {# ========== FOOTER ========== #}
+    <footer class="site-footer">
+        <div class="sahel-band" aria-hidden="true"></div>
+
+        <div class="container footer-main">
+            <div class="row g-5">
+
+                {# Marque #}
+                <div class="col-lg-4">
+                    <a class="brand brand--light" href="/">
+                        <svg class="brand-logo brand-logo--light" aria-hidden="true"><use href="#ts-logo"/></svg>
+                        <span class="brand-name">Tourisme<span>Sahel</span></span>
+                    </a>
+                    <p class="footer-text mt-3">
+                        Voyagez au cœur du Sahel : cités de terre millénaires, déserts dorés, fleuves
+                        et cultures vivantes. Des expériences authentiques, accompagnées par des guides locaux certifiés.
+                    </p>
+                    <ul class="footer-social" aria-label="Réseaux sociaux">
+                        <li><a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a></li>
+                        <li><a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a></li>
+                        <li><a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a></li>
+                        <li><a href="#" aria-label="TikTok"><i class="bi bi-tiktok"></i></a></li>
+                        <li><a href="#" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a></li>
+                    </ul>
+                </div>
+
+                {# Explorer #}
+                <div class="col-6 col-md-4 col-lg-2">
+                    <h3 class="footer-title">Explorer</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'locations:destination_list' %}">Destinations</a></li>
+                        <li><a href="{% url 'tourism:site_list' %}">Sites touristiques</a></li>
+                        <li><a href="{% url 'circuits:circuit_list' %}">Circuits</a></li>
+                        <li><a href="{% url 'guides:guide_list' %}">Nos guides</a></li>
+                    </ul>
+                </div>
+
+                {# Pays #}
+                <div class="col-6 col-md-4 col-lg-2">
+                    <h3 class="footer-title">Pays</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'locations:destination_list' %}?pays=senegal">Sénégal</a></li>
+                        <li><a href="{% url 'locations:destination_list' %}?pays=mali">Mali</a></li>
+                        <li><a href="{% url 'locations:destination_list' %}?pays=niger">Niger</a></li>
+                        <li><a href="{% url 'locations:destination_list' %}?pays=burkina-faso">Burkina Faso</a></li>
+                    </ul>
+                </div>
+
+                {# Aide #}
+                <div class="col-6 col-md-4 col-lg-2">
+                    <h3 class="footer-title">Aide</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'core:about' %}">À propos</a></li>
+                        <li><a href="{% url 'core:contact' %}">Contact</a></li>
+                        <li><a href="{% url 'core:faq' %}">FAQ</a></li>
+                        <li><a href="{% url 'core:become_guide' %}">Devenir guide</a></li>
+                    </ul>
+                </div>
+
+                {# Newsletter #}
+                <div class="col-md-12 col-lg-2">
+                    <h3 class="footer-title">Newsletter</h3>
+                    <p class="footer-text small">Inspirations et offres exclusives, une fois par mois.</p>
+                    <form class="footer-newsletter" method="post" action="{% url 'core:newsletter' %}">
+                        {% csrf_token %}
+                        <label for="newsletterEmail" class="visually-hidden">Adresse e-mail</label>
+                        <input type="email" id="newsletterEmail" name="email" class="form-control" placeholder="Votre e-mail" required>
+                        <button type="submit" class="btn btn-gold w-100 mt-2">S'abonner</button>
+                    </form>
+                </div>
+            </div>
+
+            {# Coordonnées #}
+            <div class="footer-contact">
+                <span><i class="bi bi-geo-alt"></i> Dakar · Bamako · Niamey · Ouagadougou</span>
+                <span><i class="bi bi-envelope"></i> <a href="mailto:contact@tourismesahel.com">contact@tourismesahel.com</a></span>
+                <span><i class="bi bi-telephone"></i> <a href="tel:+221000000000">+221 00 000 00 00</a></span>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+                <p class="mb-0">&copy; {% now "Y" %} TourismeSahel. Tous droits réservés.</p>
+                <ul class="footer-legal">
+                    <li><a href="{% url 'core:mentions_legales' %}">Mentions légales</a></li>
+                    <li><a href="{% url 'core:confidentialite' %}">Confidentialité</a></li>
+                    <li><a href="{% url 'core:cgv' %}">CGV</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    {# Bouton retour en haut #}
+    <button type="button" class="back-to-top" id="backToTop" aria-label="Retour en haut de page">
+        <i class="bi bi-arrow-up"></i>
+    </button>
+
+    {# Bootstrap JS (inclut Popper) #}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+    <script>
+        (function () {
+            "use strict";
+            var header = document.getElementById("siteHeader");
+            var backToTop = document.getElementById("backToTop");
+
+            // Navbar compacte + bouton "retour en haut" au défilement
+            function onScroll() {
+                var y = window.scrollY;
+                header.classList.toggle("is-scrolled", y > 24);
+                backToTop.classList.toggle("is-visible", y > 480);
+            }
+            window.addEventListener("scroll", onScroll, { passive: true });
+            onScroll();
+
+            backToTop.addEventListener("click", function () {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+
+            // Focus automatique sur le champ de recherche à l'ouverture
+            var navSearch = document.getElementById("navSearch");
+            navSearch.addEventListener("shown.bs.collapse", function () {
+                navSearch.querySelector("input").focus();
+            });
+
+            // Affichage des messages Django
+            document.querySelectorAll(".ts-toast").forEach(function (el) {
+                bootstrap.Toast.getOrCreateInstance(el).show();
+            });
+        })();
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

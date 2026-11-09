@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Créer un compte voyageur{% endblock %}
+
+{% block content %}
+<section class="section bg-sand-soft">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-7">
+                <div class="bg-white p-4 p-md-5 rounded-ts shadow-ts border">
+                    <div class="text-center mb-4">
+                        <span class="eyebrow">Rejoindre TourismeSahel</span>
+                        <h1 class="h3 mb-1">Créer votre compte</h1>
+                        <p class="text-muted-ts small mb-0">
+                            Enregistrez vos destinations coup de cœur, réservez vos circuits et suivez vos demandes.
+                        </p>
+                    </div>
+
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger small" role="alert">
+                            {% for err in form.non_field_errors %}
+                                <div>{{ err }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'accounts:register' %}" novalidate>
+                        {% csrf_token %}
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">{{ form.first_name.label }} *</label>
+                                {{ form.first_name }}
+                                {% for err in form.first_name.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">{{ form.last_name.label }} *</label>
+                                {{ form.last_name }}
+                                {% for err in form.last_name.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }} *</label>
+                                {{ form.username }}
+                                {% for err in form.username.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }} *</label>
+                                {{ form.email }}
+                                {% for err in form.email.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.telephone.id_for_label }}" class="form-label">{{ form.telephone.label }}</label>
+                                {{ form.telephone }}
+                                {% for err in form.telephone.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.pays_origine.id_for_label }}" class="form-label">{{ form.pays_origine.label }}</label>
+                                {{ form.pays_origine }}
+                                {% for err in form.pays_origine.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label">{{ form.password1.label }} *</label>
+                                {{ form.password1 }}
+                                {% for err in form.password1.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label">{{ form.password2.label }} *</label>
+                                {{ form.password2 }}
+                                {% for err in form.password2.errors %}
+                                    <div class="text-danger small mt-1">{{ err }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-gold w-100 mt-4">
+                            <i class="bi bi-person-plus me-1"></i> Créer mon compte
+                        </button>
+                    </form>
+
+                    <div class="text-center mt-4 pt-3 border-top small">
+                        Vous avez déjà un compte ?
+                        <a href="{% url 'accounts:login' %}" class="fw-semibold">Se connecter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
